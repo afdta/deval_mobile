@@ -225,16 +225,19 @@
 	  greens: ['#a3f9a6', '#71c675', '#3f9646']
 	};
 
+	//to do: split the layout functionality from map draw to avoid async drawing -- async drawing complicates use and can be prone to error if not considered into use
+
 	function map(container){
 	    //one-time-setup
 
 	    var scope = {
 	        map_width:360,
-	        min_width:360,
+	        min_width:120,
 	        map_aspect: 0.6,
 	        projection: d3.geoAlbersUsa(),
 	        is_mobile: true,
-	        side_panel_visible: false
+	        side_panel_visible: false,
+	        responsive: true
 	    };
 	    scope.path = d3.geoPath(scope.projection);
 	    scope.map_height = scope.map_width * scope.map_aspect;
@@ -244,9 +247,9 @@
 
 	    //mobile map legend
 	    
-	    var mobile_legend = wrap0.append("div").style("padding","15px");
-	    var mobile_title = mobile_legend.append("p").style("margin","0px 0px 10px 0px").text("mobile legend here");
-	    var mobile_swatches = mobile_legend.append("div").classed("c-fix",true);
+	    var mobile_legend = wrap0.append("div");
+	    //var mobile_title = mobile_legend.append("p").style("margin","0px 0px 10px 0px").text("mobile legend here");
+	    //var mobile_swatches = mobile_legend.append("div").classed("c-fix",true);
 
 
 	    //map dom
@@ -366,7 +369,7 @@
 	        map_panel.style("position", map_absolute ? "absolute" : "relative")
 	                 .style("width", scope.map_width+"px")
 	                 .style("height", scope.map_height+"px")
-	                 .style("margin", scope.is_mobile ? "15px 0px" : "0px");
+	                 .style("margin", scope.is_mobile ? "0px" : "0px");
 
 	        side_panel.style("width", scope.side_width+"px")
 	                  .style("display", scope.side_panel_visible ? "block" : "none")
@@ -394,10 +397,12 @@
 	    }
 
 	    window.addEventListener("resize", function(){
-	        clearTimeout(resize_timeout);
-	        clearTimeout(draw_timeout);
-	        wrap0.style("overflow","hidden"); //avoid horizontal scroll bars while resizing
-	        resize_timeout = setTimeout(draw_, 100);
+	        if(scope.responsive){
+	            clearTimeout(resize_timeout);
+	            clearTimeout(draw_timeout);
+	            wrap0.style("overflow","hidden"); //avoid horizontal scroll bars while resizing
+	            resize_timeout = setTimeout(draw_, 50);
+	        }
 	    });
 
 	    //internal draw method
@@ -583,6 +588,13 @@
 	            }
 	        };
 
+	        layer_methods.attrs = function(a){
+	            if(arguments.length > 0){
+	                attrs = a;
+	                draw();
+	            }
+	        };
+
 	        //redraw all layers
 	        draw();
 
@@ -748,6 +760,14 @@
 	            }
 	        };
 
+	        layer_methods.attrs = function(a){
+	            if(arguments.length > 0){
+	                attrs = a;
+	                draw();
+	            }
+	        };
+
+
 	        //redraw all layers
 	        draw();
 
@@ -771,6 +791,13 @@
 
 	    map_methods.mobile_panel = function(){
 	        return mobile_legend;
+	    };
+
+	    map_methods.responsive = function(r){
+	        if(arguments.length > 0){
+	            scope.responsive = !!r;
+	        }
+	        return map_methods;
 	    };
 
 	    return map_methods;
@@ -16263,10 +16290,79 @@
 	]
 	;
 
+	function dashboard(container, cbsas, lookup){
+	    var wrap = d3.select(container);
+
+	    console.log(cbsas);
+
+	    var header = wrap.append("div").classed("c-fix",true);
+
+	    var select_wrap = header.append("div").classed("select-wrap",true);
+
+	    select_wrap.append("svg").attr("width","20px").attr("height","20px").style("position","absolute").style("top","45%").style("right","0px")
+	               .append("path").attr("d", "M0,0 L5,5 L10,0").attr("fill","none").attr("stroke", "#aaaaaa").attr("stroke-width","2px");
+
+	    var select = select_wrap.append("select");
+	    select.append("option").text("Select a metropolitan area").attr("disabled","yes").attr("selected","1").attr("hidden","1");
+
+	    var options = select.selectAll("option")
+	                        .data(cbsas.slice(0).sort(function(a,b){return d3.ascending(a.name, b.name)} ))
+	                        .enter().append("option")
+	                        .text(function(d){return d.name})
+	                        .attr("value", function(d){return d.cbsa})
+	                        ;
+
+	    var scope = {
+	        cbsa: "10420"
+	    };
+
+	    var body = wrap.append("div").classed("c-fix",true).style("margin-top","24px").style("padding","0px 0px");
+
+	    var title_box = body.append("div").classed("c-fix",true).style("border","1px solid #ffffff").style("border-width","0px 0px 1px 0px").style("padding","10px 0px");
+	    var map_wrap = title_box.append("div").style("float","left").style("width", "130px").style("height", "50px").style("margin-right","15px");
+	    var highlight_map = map(map_wrap.node()).responsive(false);
+	        highlight_map.draw_states(state_geos.features, {fill:"#ffffff", stroke:"#dddddd", "stroke-width":"1px"}, function(d){return d.properties.geo_id});
+	        
+	    var cbsa_layer = highlight_map.draw_points(cbsas, {r:"3"}, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]});
+	    var title = title_box.append("p").classed("mi-title2",true).style("float","left").style("margin","15px 0px");
+
+	    var panels = body.append("div").classed("c-fix mi-split",true).style("margin","32px 0px");
+	    
+	    var left_panel = panels.append("div");
+	    var right_panel = panels.append("div");
+
+	    left_panel.append("p").classed("mi-title3",true).text("Summary data here");
+	    left_panel.append("p").text("Which indicators?");
+	    right_panel.append("p").classed("mi-title3",true).text("Neighborhood level data here");
+	    right_panel.append("p").text("Which indicators?");
+
+
+	    select.on("change", function(){
+	        scope.cbsa = this.value+"";
+	        update();
+	    });
+
+	    //update
+
+	    function update(cbsa_){
+	        if(arguments.length > 0){
+	            scope.cbsa = cbsa_;
+	        }
+
+	        cbsa_layer.attrs({stroke:function(d){return d==scope.cbsa ? "#333333" : "none"}, r:"3", fill:"none"});
+
+	        title.html(lookup[scope.cbsa].summary.cbsaname);
+	    }
+
+	    //initialize
+	    update();
+	}
+
 	//main function
 	function main(){
 
 	  var map_container = document.getElementById("mi-map-panel");
+	  var dash_container = document.getElementById("mi-dash-panel");
 
 	  var compat = degradation();
 
@@ -16315,26 +16411,27 @@
 	    }
 	  };
 
+	  var fill = function(cbsa){
+	    if(lookup.hasOwnProperty(cbsa)){
+	      var d = lookup[cbsa].summary.zil_deval_blk50_3;
+	      var c = devaluation_scale(d);
+	      return c;
+	    }
+	    else{
+	      return palette.na;
+	    }
+	  };
+
 
 	  //browser degradation
 	  if(compat.browser(map_container)){
+	    
+	    //map
 	    var statemap = map(map_container);
-
-	    var fill = function(cbsa){
-	      if(lookup.hasOwnProperty(cbsa)){
-	        var d = lookup[cbsa].summary.zil_deval_blk50_3;
-	        var c = devaluation_scale(d);
-	        return c;
-	      }
-	      else{
-	        return palette.na;
-	      }
-	    };
-
 	    var state_layer = statemap.draw_states(state_geos.features, {fill:"#ffffff", stroke:"#aaaaaa"}, function(d){return d.properties.geo_id});
 	    var cbsa_layer = statemap.draw_points(cbsa_geos2, {fill:"none", "stroke-width":"3", stroke:fill, r:radius_scale, "pointer-events":"all"}, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}); //  state_geos.features, {fill:"#ffffff"}, function(d){return d.properties.geo_id});
 
-	    //bar panel
+	    //bar panel (to accompany map)
 	    var mobile_panel = statemap.mobile_panel();
 	    var side_panel0 = statemap.side_panel(true);
 	    side_panel0.style("background-color","#e0e0e0");
@@ -16375,7 +16472,7 @@
 
 	    var highlight_dots = draw_bars(bars_svg, bars_main, bar_scale, devaluation_scale, mobile_panel);
 
-
+	    //map tooltips
 	    cbsa_layer.tooltips(function(code){
 	     
 	      highlight_dots.style("visibility", function(d){return d.cbsa==code ? "visible" : "hidden"});
@@ -16388,6 +16485,13 @@
 	    }, function(){
 	      highlight_dots.style("visibility", "hidden");
 	    });
+
+	    //dashboards
+	    dashboard(dash_container, cbsa_geos2, lookup);
+
+	  }
+	  else{
+	    compat.alert(dash_container);
 	  }
 
 	} //close main()

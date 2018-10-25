@@ -6,14 +6,14 @@ import cbsa_geos from './cbsa-geos';
 import map from './map.js';
 import all_data from './all-data.js';
 import palette from './palette.js';
-
-
+import dashboard from './dashboard.js';
 
 
 //main function
 function main(){
 
   var map_container = document.getElementById("mi-map-panel");
+  var dash_container = document.getElementById("mi-dash-panel");
 
   var compat = degradation();
 
@@ -66,26 +66,27 @@ function main(){
     }
   }
 
+  var fill = function(cbsa){
+    if(lookup.hasOwnProperty(cbsa)){
+      var d = lookup[cbsa].summary.zil_deval_blk50_3;
+      var c = devaluation_scale(d);
+      return c;
+    }
+    else{
+      return palette.na;
+    }
+  }
+
 
   //browser degradation
   if(compat.browser(map_container)){
+    
+    //map
     var statemap = map(map_container);
-
-    var fill = function(cbsa){
-      if(lookup.hasOwnProperty(cbsa)){
-        var d = lookup[cbsa].summary.zil_deval_blk50_3;
-        var c = devaluation_scale(d);
-        return c;
-      }
-      else{
-        return palette.na;
-      }
-    }
-
     var state_layer = statemap.draw_states(state_geos.features, {fill:"#ffffff", stroke:"#aaaaaa"}, function(d){return d.properties.geo_id});
     var cbsa_layer = statemap.draw_points(cbsa_geos2, {fill:"none", "stroke-width":"3", stroke:fill, r:radius_scale, "pointer-events":"all"}, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}); //  state_geos.features, {fill:"#ffffff"}, function(d){return d.properties.geo_id});
 
-    //bar panel
+    //bar panel (to accompany map)
     var mobile_panel = statemap.mobile_panel();
     var side_panel0 = statemap.side_panel(true);
     side_panel0.style("background-color","#e0e0e0");
@@ -126,7 +127,7 @@ function main(){
 
     var highlight_dots = draw_bars(bars_svg, bars_main, bar_scale, devaluation_scale, mobile_panel);
 
-
+    //map tooltips
     cbsa_layer.tooltips(function(code){
      
       highlight_dots.style("visibility", function(d){return d.cbsa==code ? "visible" : "hidden"});
@@ -139,9 +140,13 @@ function main(){
     }, function(){
       highlight_dots.style("visibility", "hidden");
     });
+
+    //dashboards
+    dashboard(dash_container, cbsa_geos2, lookup);
+
   }
   else{
-
+    compat.alert(dash_container);
   }
 
 } //close main()

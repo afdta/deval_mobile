@@ -1,15 +1,18 @@
 import palette from './palette.js';
 
+//to do: split the layout functionality from map draw to avoid async drawing -- async drawing complicates use and can be prone to error if not considered into use
+
 export default function map(container){
     //one-time-setup
 
     var scope = {
         map_width:360,
-        min_width:360,
+        min_width:120,
         map_aspect: 0.6,
         projection: d3.geoAlbersUsa(),
         is_mobile: true,
-        side_panel_visible: false
+        side_panel_visible: false,
+        responsive: true
     }
     scope.path = d3.geoPath(scope.projection);
     scope.map_height = scope.map_width * scope.map_aspect;
@@ -19,9 +22,9 @@ export default function map(container){
 
     //mobile map legend
     
-    var mobile_legend = wrap0.append("div").style("padding","15px");
-    var mobile_title = mobile_legend.append("p").style("margin","0px 0px 10px 0px").text("mobile legend here");
-    var mobile_swatches = mobile_legend.append("div").classed("c-fix",true);
+    var mobile_legend = wrap0.append("div");
+    //var mobile_title = mobile_legend.append("p").style("margin","0px 0px 10px 0px").text("mobile legend here");
+    //var mobile_swatches = mobile_legend.append("div").classed("c-fix",true);
 
 
     //map dom
@@ -141,7 +144,7 @@ export default function map(container){
         map_panel.style("position", map_absolute ? "absolute" : "relative")
                  .style("width", scope.map_width+"px")
                  .style("height", scope.map_height+"px")
-                 .style("margin", scope.is_mobile ? "15px 0px" : "0px");
+                 .style("margin", scope.is_mobile ? "0px" : "0px");
 
         side_panel.style("width", scope.side_width+"px")
                   .style("display", scope.side_panel_visible ? "block" : "none")
@@ -170,10 +173,12 @@ export default function map(container){
     }
 
     window.addEventListener("resize", function(){
-        clearTimeout(resize_timeout);
-        clearTimeout(draw_timeout);
-        wrap0.style("overflow","hidden"); //avoid horizontal scroll bars while resizing
-        resize_timeout = setTimeout(draw_, 100);
+        if(scope.responsive){
+            clearTimeout(resize_timeout);
+            clearTimeout(draw_timeout);
+            wrap0.style("overflow","hidden"); //avoid horizontal scroll bars while resizing
+            resize_timeout = setTimeout(draw_, 50);
+        }
     });
 
     //internal draw method
@@ -359,6 +364,13 @@ export default function map(container){
             }
         }
 
+        layer_methods.attrs = function(a){
+            if(arguments.length > 0){
+                attrs = a;
+                draw();
+            }
+        }
+
         //redraw all layers
         draw();
 
@@ -524,6 +536,14 @@ export default function map(container){
             }
         }
 
+        layer_methods.attrs = function(a){
+            if(arguments.length > 0){
+                attrs = a;
+                draw();
+            }
+        }
+
+
         //redraw all layers
         draw();
 
@@ -547,6 +567,13 @@ export default function map(container){
 
     map_methods.mobile_panel = function(){
         return mobile_legend;
+    }
+
+    map_methods.responsive = function(r){
+        if(arguments.length > 0){
+            scope.responsive = !!r;
+        }
+        return map_methods;
     }
 
     return map_methods;
