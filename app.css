@@ -1,0 +1,92 @@
+.metro-interactive .c-fix:after{
+    display:table;
+    content:"";
+    clear:both;
+}
+
+.metro-interactive div{
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.metro-interactive .mi-rm{
+    display:none;
+}
+
+.metro-interactive .mi-section-panel{
+    background-color:#e0e0e0;
+    margin:64px auto;
+    padding:32px 0px;
+}
+
+.metro-interactive .mi-center-col{
+    max-width:1400px;
+    margin:15px auto;
+    padding:0px 15px;
+}
+
+.metro-interactive .mi-reading{
+    max-width:860px;
+}
+
+.metro-interactive .mi-reading *{
+    line-height:1.7em;
+}
+
+
+.metro-interactive .mi-notes{
+    position:relative;
+    margin-top:48px;
+}
+
+.metro-interactive .mi-notes:before{
+    content:"";
+    position:absolute;
+    height:1px;
+    width:20%;
+    border-top:1px solid #ffffff;
+    top:-16px;
+    left:15px;
+}
+
+.metro-interactive .mi-notes *{
+    line-height:1.5em;
+    font-size:0.9em;
+    font-style:italic;
+    color:#666666;
+}
+
+
+.metro-interactive .mi-mobile-view{
+    display:block;
+}
+
+.metro-interactive p, .metro-interactive text{
+    font-family: 'PT Serif', serif;
+    font-size: 16px;
+    color:#333333;
+    fill:#333333;
+    margin:0em 0em 16px 0em;
+    line-height:1.4em;
+}
+
+.metro-interactive p.mi-title1{
+    font-size:42px;
+    font-weight:bold;
+}
+
+.metro-interactive p.mi-title2{
+    font-size:32px;
+    font-weight:bold;
+}
+
+.metro-interactive p.mi-title3{
+    font-size:22px;
+    font-weight:bold;
+}
+
+@media (min-width:1000px){
+    .metro-interactive .mi-mobile-view{
+        display:none;
+}
