@@ -1,6 +1,9 @@
 import palette from './palette.js';
 
 //to do: split the layout functionality from map draw to avoid async drawing -- async drawing complicates use and can be prone to error if not considered into use
+//wed: introduce map.draw(width) -- if width specified not responsive, else responsive -- should always be synchronous
+//pull out the dims() function logic -- the map function should just map
+//control drawing in asynchronous code w setTimeouts, but this should be transparent to user.
 
 export default function map(container){
     //one-time-setup
@@ -103,7 +106,6 @@ export default function map(container){
         }
         catch(e){
             width = 360;
-            scope.is_mobile = true;
         }
 
         //fractional widths of panels
