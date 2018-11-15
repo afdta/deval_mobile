@@ -1,37 +1,24 @@
 import palette from './palette.js';
 
-//to do: split the layout functionality from map draw to avoid async drawing -- async drawing complicates use and can be prone to error if not considered into use
-//wed: introduce map.draw(width) -- if width specified not responsive, else responsive -- should always be synchronous
-//pull out the dims() function logic -- the map function should just map
-//control drawing in asynchronous code w setTimeouts, but this should be transparent to user.
-
-export default function map(container){
+function map(container){
     //one-time-setup
 
     var scope = {
-        map_width:360,
-        min_width:120,
-        map_aspect: 0.6,
+        width:360,
+        width_user:null,
+        min_width:240,
+        aspect: 0.6,
         projection: d3.geoAlbersUsa(),
-        is_mobile: true,
-        side_panel_visible: false,
         responsive: true
     }
     scope.path = d3.geoPath(scope.projection);
-    scope.map_height = scope.map_width * scope.map_aspect;
+    scope.height = scope.width * scope.aspect;
 
     //main outer wrap
-    var wrap0 = d3.select(container).append("div").classed("c-fix",true).style("padding","0px").style("position","relative").style("min-width", scope.min_width+"px");
-
-    //mobile map legend
-    
-    var mobile_legend = wrap0.append("div");
-    //var mobile_title = mobile_legend.append("p").style("margin","0px 0px 10px 0px").text("mobile legend here");
-    //var mobile_swatches = mobile_legend.append("div").classed("c-fix",true);
-
+    var wrap0 = d3.select(container).append("div").classed("c-fix",true).style("padding","0px").style("position","relative").style("min-height","15px");
 
     //map dom
-    var map_panel = wrap0.append("div").style("position","relative").style("z-index","7").style("top","0px").style("left","0px"); //hold map
+    var map_panel = wrap0.append("div").style("position","relative").style("z-index","7").style("top","0px").style("left","0px"); //hold map -- set dims on this wrap
     var svg = map_panel.append("svg").attr("width","100%").attr("height","100%");
     var g_back = svg.append("g");
     var g_main = svg.append("g");
@@ -70,11 +57,6 @@ export default function map(container){
                             .attr("fill","#ffffff")
                             ;
 
-
-
-    //side panel
-    var side_panel = wrap0.append("div").style("float","right").style("width","220px").style("position","relative").style("z-index","10");
-
     //build svg filters
     var defs = wrap0.append("div").style("height","0px").append("svg").append("defs");
     var filter = defs.append("filter").attr("id","feBlur").attr("width","150%").attr("height","150%");
@@ -91,120 +73,6 @@ export default function map(container){
                             .classed("tooltip-test-area", true).style("padding","10px 15px 10px 10px")
                             .style("user-select","none");
 
-    //calculate and set dimensions on containers
-    function dims(){
-        var width;
-        try{
-            var box = wrap0.node().getBoundingClientRect();
-            width = box.right - box.left;
-            if(width < scope.min_width){
-                width = scope.min_width;
-            }
-            else if(width > 1400){
-                width = 1400;
-            }
-        }
-        catch(e){
-            width = 360;
-        }
-
-        //fractional widths of panels
-        var map_share = 1;
-        var side_share = 0;
-        var map_absolute = true;
-
-        //shadow for right panel
-        var box_shadow = "-2px 1px 6px rgba(0,0,0,0.25)";
-
-
-        if(width > 900){
-            map_share = scope.side_panel_visible ? 0.74 : 1;
-            side_share = scope.side_panel_visible ? 0.24 : 1;
-            scope.is_mobile = false;
-            map_absolute = true;
-            box_shadow = null;
-        }
-        else if(width > 700){
-            map_share = 1;
-            side_share = 0.3;
-            scope.is_mobile = false;
-            map_absolute = true;
-        }
-        else{
-            map_share = 1;
-            side_share = 1;
-            scope.is_mobile = true;
-            map_absolute = false;
-        }
-
-        scope.map_width = Math.floor(width*map_share);
-        scope.map_height = scope.map_aspect * scope.map_width;
-        scope.side_width = Math.floor(width*side_share);
-
-        wrap0.style("min-height", scope.map_height + "px");
-        
-        map_panel.style("position", map_absolute ? "absolute" : "relative")
-                 .style("width", scope.map_width+"px")
-                 .style("height", scope.map_height+"px")
-                 .style("margin", scope.is_mobile ? "0px" : "0px");
-
-        side_panel.style("width", scope.side_width+"px")
-                  .style("display", scope.side_panel_visible ? "block" : "none")
-                  .style("box-shadow", box_shadow)
-                  .style("min-height", scope.map_height + "px");;
-        
-        mobile_legend.style("display", scope.is_mobile ? "block" : "none");
-
-    }
-
-    //hold 
-    var draw_stack = [];
-    var clip_geo = null;
-
-    //draw, redraw, resize
-    var resize_timeout;
-    var draw_timeout;
-
-    function draw(){
-        clearTimeout(resize_timeout);
-        clearTimeout(draw_timeout);
-
-        draw_timeout = setTimeout(function(){
-            draw_();
-        }, 0)
-    }
-
-    window.addEventListener("resize", function(){
-        if(scope.responsive){
-            clearTimeout(resize_timeout);
-            clearTimeout(draw_timeout);
-            wrap0.style("overflow","hidden"); //avoid horizontal scroll bars while resizing
-            resize_timeout = setTimeout(draw_, 50);
-        }
-    });
-
-    //internal draw method
-    function draw_(){
-        wrap0.style("overflow","visible"); //allow tooltips to overflow
-        dims();
-
-        if(clip_geo !== null){
-            scope.projection.fitExtent([[0, 0], [scope.map_width, scope.map_height]], clip_geo);
-        }
-
-        var i = -1;
-        while(++i < draw_stack.length){
-            draw_stack[i]();
-        }
-
-    }    
-
-    //map methods exposed to user for:
-    // 1) draw_states(f, attrs, geokey, clip_to_this)
-    // 2) draw_points(f, attrs, geokey, lonlat, clip_to_this)
-    // 3) side_panel() //get panel container
-    var map_methods = {};
-
     var tip_show_timer;
     var tip_hide_timer;
     function show_tooltip(centroid, html){
@@ -214,8 +82,6 @@ export default function map(container){
 
         tooltip_test.html(html);
 
-        
-
         tip_show_timer = setTimeout(function(){
             //show to left or right
             var show_right = true;
@@ -224,7 +90,7 @@ export default function map(container){
             try{
                 var tip_box = tooltip_test.node().getBoundingClientRect();
                 var tip_width = tip_box.right - tip_box.left;
-                show_right = tip_width + centroid[0] < scope.map_width;
+                show_right = tip_width + centroid[0] < scope.width;
             }
             catch(e){
                 show_right = true;
@@ -243,30 +109,63 @@ export default function map(container){
                 tooltip_arrow_right.style("visibility","hidden");
             }
 
-            tooltip.style("left",left).style("top",top).style("display", !scope.is_mobile ? "block" : "block");
+            tooltip.style("left",left).style("top",top).style("display", "block");
             tooltip_content.html(html);
         }, 10);         
-        
-
     }
 
-    var hide_tooltip_callbacks = [];
-    function hide_tooltip(){
+    function hide_tooltip(callback){
         clearTimeout(tip_hide_timer);
         clearTimeout(tip_show_timer);
 
-        tip_hide_timer = setTimeout(function(d){
+        tip_hide_timer = setTimeout(function(){
             tooltip.style("left","0px").style("top","0px").style("display", "none");
-            var i = -1;
-            while(++i < hide_tooltip_callbacks.length){
-                if(typeof hide_tooltip_callbacks[i] === "function"){
-                    hide_tooltip_callbacks[i]();
-                }
+            if(typeof callback === "function"){
+                callback();
             }
-        });
+        }, 50);
     }
 
-    map_methods.draw_states = function(f, attrs, geokey, clip_to_this){
+    //hold 
+    var draw_stack = [];
+    var clip_geo = null;
+
+    //draw, redraw, resize
+    var resize_timeout;
+
+    window.addEventListener("resize", function(){
+        clearTimeout(resize_timeout);
+        if(scope.responsive){
+            wrap0.style("overflow","hidden"); //avoid horizontal scroll bars while resizing
+            resize_timeout = setTimeout(draw, 0);
+        }
+    });
+
+    //internal draw method
+    function draw(){
+        wrap0.style("overflow","visible"); //allow tooltips to overflow
+        dims();
+
+        map_panel.style("width", scope.width+"px").style("height", scope.height+"px");
+
+        if(clip_geo !== null){
+            scope.projection.fitExtent([[0, 0], [scope.width, scope.height]], clip_geo);
+        }
+
+        var i = -1;
+        while(++i < draw_stack.length){
+            draw_stack[i]();
+        }
+
+    }    
+
+    //map methods exposed to user for:
+    // 1) add_states(f, attrs, geokey, clip_to_this)
+    // 2) add_points(f, attrs, geokey, lonlat, clip_to_this)
+    // 3) print -- render map
+    var map_methods = {};
+
+    map_methods.add_states = function(f, geokey, clip_to_this){
         var g = g_main.append("g");
         var features = [];
         
@@ -282,7 +181,7 @@ export default function map(container){
 
   
         //set clip_geography for projection
-        if((arguments.length > 3 && !!clip_to_this) || clip_geo === null){
+        if((arguments.length > 2 && !!clip_to_this) || clip_geo === null){
             clip_geo = {type:"FeatureCollection", features:features};
         }
 
@@ -292,30 +191,38 @@ export default function map(container){
         //tooltip function
         var ttip = null; 
 
+        //hide function
+        var ttip_hide_;
+        var ttip_hide = function(){
+            hide_tooltip(ttip_hide_);
+        }
+
+        //attributes
+        var attrs = {};
+
         function draw_layer(){
             var selection_ = g.selectAll("path").data(features, geokey);
             selection_.exit().remove();
             selection = selection_.enter().append("path").merge(selection_).attr("d", scope.path);
     
             //apply attributes
-            if(attrs != null){
-                for(var a in attrs){
-                    if(attrs.hasOwnProperty(a)){
-                        if(typeof attrs[a] === "function"){
-                            selection.attr(a, function(d){
-                                return attrs[a].call(this, geokey(d))
-                            })
-                        }
-                        else{
-                            selection.attr(a, attrs[a]);
-                        }
-                        
+            for(var a in attrs){
+                if(attrs.hasOwnProperty(a)){
+                    if(typeof attrs[a] === "function"){
+                        selection.attr(a, function(d){
+                            return attrs[a].call(this, geokey(d))
+                        })
                     }
+                    else{
+                        selection.attr(a, attrs[a]);
+                    }
+                    
                 }
             }
 
+
             if(ttip !== null){
-                selection.on("mouseenter", function(d){ttip(geokey(d))}).on("mouseleave", hide_tooltip);
+                selection.on("mouseenter", function(d){ttip(geokey(d))}).on("mouseleave", ttip_hide);
             }
         }
 
@@ -324,7 +231,7 @@ export default function map(container){
         //return object for this layer
         var layer_methods = {}
 
-        layer_methods.tooltips = function(html_){
+        layer_methods.tooltips = function(html_, hide_){
             
             //register fn
             ttip = function(key){
@@ -344,11 +251,15 @@ export default function map(container){
                     //would only occur if user passes an invalid geocode
                     console.warn("Multiple or no matching points.");
                 }
+            }  
+            
+            if(arguments.length > 1){
+                ttip_hide_ = hide_;
             }            
 
             //apply, if selection created
             if(selection !== null){
-                selection.on("mouseenter", function(d){ttip(geokey(d))}).on("mouseleave", hide_tooltip);
+                selection.on("mouseenter", function(d){ttip(geokey(d))}).on("mouseleave", ttip_hide);
             }
 
             return layer_methods;
@@ -366,22 +277,19 @@ export default function map(container){
             }
         }
 
-        layer_methods.attrs = function(a){
+        layer_methods.attr = function(a){
             if(arguments.length > 0){
                 attrs = a;
-                draw();
             }
+            return layer_methods;
         }
 
-        //redraw all layers
-        draw();
-
-        //end state layer factory (draw_states);
+        //end state layer factory (add_states);
         return layer_methods;    
     }
 
 
-    map_methods.draw_points = function(f, attrs, geokey, lonlat, clip_to_this){
+    map_methods.add_points = function(f, geokey, lonlat, clip_to_this){
         var g = g_main.append("g");
        
         var g_voro = g.append("g"); //render voronoi here
@@ -405,7 +313,7 @@ export default function map(container){
         });        
 
         //set clip_geography for projection
-        if((arguments.length > 4 && !!clip_to_this) || clip_geo === null){
+        if((arguments.length > 3 && !!clip_to_this) || clip_geo === null){
             clip_geo = {type:"FeatureCollection", features:geo_features};
         }
         
@@ -420,6 +328,15 @@ export default function map(container){
 
         //tooltip fn
         var ttip = null;
+        
+        //hide function
+        var ttip_hide_;
+        var ttip_hide = function(){
+            hide_tooltip(ttip_hide_);
+        }
+
+        //attributes
+        var attrs = {};
 
         function draw_layer(){
 
@@ -439,25 +356,24 @@ export default function map(container){
                         ;
             
             //apply attributes
-            if(attrs != null){
-                for(var a in attrs){
-                    if(attrs.hasOwnProperty(a)){
-                        if(typeof attrs[a] === "function"){
-                            selection.attr(a, function(d, i){
-                                return attrs[a].call(this, d.key)
-                            })
-                        }
-                        else{
-                            selection.attr(a, attrs[a]);
-                        }
-                        
+            for(var a in attrs){
+                if(attrs.hasOwnProperty(a)){
+                    if(typeof attrs[a] === "function"){
+                        selection.attr(a, function(d, i){
+                            return attrs[a].call(this, d.key)
+                        })
                     }
+                    else{
+                        selection.attr(a, attrs[a]);
+                    }
+                    
                 }
             }
 
+
             //add voronoi paths
             var voro = d3.voronoi()
-                        .extent([[0,0], [scope.map_width, scope.map_height]])
+                        .extent([[0,0], [scope.width, scope.height]])
                         .x(function(d){return d.xy[0]})
                         .y(function(d){return d.xy[1]})
                         .polygons(projected_features)
@@ -489,14 +405,14 @@ export default function map(container){
                                 .style("pointer-events","all");  
                                 
             if(ttip !== null){
-                selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", hide_tooltip);
-                voro_selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", hide_tooltip);
+                selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", ttip_hide);
+                voro_selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", ttip_hide);
             }                    
         }
 
         draw_stack.push(draw_layer);
 
-        layer_methods.tooltips = function(html_, hide){
+        layer_methods.tooltips = function(html_, hide_){
             
             //register
             ttip = function(key){
@@ -520,13 +436,13 @@ export default function map(container){
             }
 
             if(arguments.length > 1){
-                hide_tooltip_callbacks.push(hide);
+                ttip_hide_ = hide_;
             }
 
             //apply
             if(voro_selection !== null && selection !== null){
-                selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", hide_tooltip);
-                voro_selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", hide_tooltip);
+                selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", ttip_hide);
+                voro_selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", ttip_hide);
             }
             
             return layer_methods;
@@ -538,46 +454,88 @@ export default function map(container){
             }
         }
 
-        layer_methods.attrs = function(a){
+        layer_methods.attr = function(a){
             if(arguments.length > 0){
                 attrs = a;
-                draw();
             }
+            return layer_methods;
         }
 
-
-        //redraw all layers
-        draw();
-
-        //end point layer factory (draw_points);
+        //end point layer factory (add_points);
         return layer_methods;    
     }
 
-    map_methods.side_panel = function(make_visible){
-        
-        if(arguments.length > 0 && !!make_visible){
-            scope.side_panel_visible = true;
+    function dims(width){
+        if(arguments.length == 0 || width == null){
+            
+            //if user passes null, switch back to auto width
+            if(width === null){
+                scope.width_user = null;
+            }
+
+            //infer width if not (ever) specified by user
+            if(scope.width_user == null){
+                try{
+                    var box = wrap0.node().getBoundingClientRect();
+                    width = box.right - box.left;
+                    if(width < scope.min_width){
+                        width = scope.min_width;
+                    }
+                    else if(width > 1400){
+                        width = 1400;
+                    }
+                }
+                catch(e){
+                    width = 360;
+                }  
+            }
+            else{
+                //use previously specified width
+                width = scope.width_user;
+            }
         }
-        else if(arguments.length > 0){
-            scope.side_panel_visible = false;
+        else{
+            scope.responsive = false;
+            scope.width_user = width;
+            if(width < scope.min_width){
+                scope.min_width = width;
+            }
         }
 
-        //redraw all layers
-        draw();
-        return side_panel;
+        scope.width = width;
+        scope.height = scope.aspect * scope.width;
+      
     }
 
-    map_methods.mobile_panel = function(){
-        return mobile_legend;
-    }
-
-    map_methods.responsive = function(r){
+    map_methods.width = function(width){
         if(arguments.length > 0){
-            scope.responsive = !!r;
+            dims(width);
+            return map_methods;
+        }
+        else{
+            return scope.width;
+        }
+    }
+
+    map_methods.print = function(width){
+        dims(width);
+        draw();
+    }
+
+    //deprecated -- always responsive
+    /*map_methods.responsive = function(onoff){
+        if(arguments.length > 0){
+            scope.responsive = !!onoff;
+        }
+        else{
+            scope.responsive = !scope.responsive;
         }
         return map_methods;
-    }
+    }*/
+
 
     return map_methods;
 
 }
+
+export default map;

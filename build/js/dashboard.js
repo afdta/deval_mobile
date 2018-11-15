@@ -31,10 +31,12 @@ export default function dashboard(container, cbsas, lookup){
 
     var title_box = body.append("div").classed("c-fix",true).style("border","1px solid #ffffff").style("border-width","0px 0px 1px 0px").style("padding","10px 0px");
     var map_wrap = title_box.append("div").style("float","left").style("width", "130px").style("height", "50px").style("margin-right","15px");
-    var highlight_map = map(map_wrap.node()).responsive(false);
-        highlight_map.draw_states(state_geos.features, {fill:"#ffffff", stroke:"#dddddd", "stroke-width":"1px"}, function(d){return d.properties.geo_id});
+    
+    var highlight_map = map(map_wrap.node());
+        highlight_map.add_states(state_geos.features, function(d){return d.properties.geo_id}).attr({fill:"#ffffff", stroke:"#dddddd", "stroke-width":"1px"});
         
-    var cbsa_layer = highlight_map.draw_points(cbsas, {r:"3"}, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]});
+    var cbsa_layer = highlight_map.add_points(cbsas, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({r:"3"});
+
     var title = title_box.append("p").classed("mi-title2",true).style("float","left").style("margin","15px 0px");
 
     var panels = body.append("div").classed("c-fix mi-split",true).style("margin","32px 0px");
@@ -60,7 +62,8 @@ export default function dashboard(container, cbsas, lookup){
             scope.cbsa = cbsa_;
         }
 
-        cbsa_layer.attrs({stroke:function(d){return d==scope.cbsa ? "#333333" : "none"}, r:"3", fill:"none"});
+        cbsa_layer.attr({stroke:function(d){return d==scope.cbsa ? "#333333" : "none"}, r:"3", fill:"none"});
+        highlight_map.print(130);
 
         title.html(lookup[scope.cbsa].summary.cbsaname);
     }

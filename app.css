@@ -132,6 +132,26 @@
     top:0px;
 }
 
+.metro-interactive .legend-swatch{
+    float:left;
+    margin:0px 10px 10px 0px;;
+}
+
+.metro-interactive .legend-swatch > *{
+    display:inline-block;
+    line-height:1em;
+    margin:0px 5px 0px 0px;
+    vertical-align:top;
+    font-size:0.9em;
+}
+
+.metro-interactive .legend-swatch > div{
+    width:0.9em;
+    height:0.9em;
+    border:0px solid #dddddd;
+    border-radius:0.45em;
+}
+
 @media (min-width: 0px){
     .metro-interactive .mi-split > div{
         width:auto;

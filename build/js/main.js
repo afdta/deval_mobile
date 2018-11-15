@@ -3,6 +3,7 @@ import format from "../../../js-modules/formats.js";
 
 import {state_geos, state_mesh} from './state-geos.js';
 import cbsa_geos from './cbsa-geos';
+import layout from './layout.js';
 import map from './map.js';
 import all_data from './all-data.js';
 import palette from './palette.js';
@@ -12,8 +13,7 @@ import dashboard from './dashboard.js';
 //main function
 function main(){
 
-  var map_container = document.getElementById("mi-map-panel");
-  var dash_container = document.getElementById("mi-dash-panel");
+  var outer_map_container = document.getElementById("mi-map-panel");
 
   var compat = degradation();
 
@@ -80,20 +80,23 @@ function main(){
 
   //browser degradation
   if(compat.browser(map_container)){
+
+    //DOM ROOTS
+    var map_layout = layout(outer_map_container);
+    var map_container = map_layout.panels.map;
+    var bar_container = map_layout.panels.side.style("background-color","#e0e0e0");;
+    var dash_container = document.getElementById("mi-dash-panel");
+    var mobile_panel = map_layout.panels.mobile.style("text-align","center").append("div")
+                                  .style("display","inline-block").style("text-align","left");
+
+    map_layout.panels.title.style("margin-bottom","15px").style("text-align","center");
+    var title_wrap = map_layout.panels.title.append("div").style("display","inline-block").style("text-align","center");
     
-    //map
-    var statemap = map(map_container);
-    var state_layer = statemap.draw_states(state_geos.features, {fill:"#ffffff", stroke:"#aaaaaa"}, function(d){return d.properties.geo_id});
-    var cbsa_layer = statemap.draw_points(cbsa_geos2, {fill:"none", "stroke-width":"3", stroke:fill, r:radius_scale, "pointer-events":"all"}, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}); //  state_geos.features, {fill:"#ffffff"}, function(d){return d.properties.geo_id});
+    title_wrap.append("p").classed("mi-title2",true).text("Devaluation of black homes");
+    title_wrap.append("p").style("font-style","italic").text("More intuitive definition of what this meaures by metropolitan area, 20YY").style("margin","0px");
 
-    //bar panel (to accompany map)
-    var mobile_panel = statemap.mobile_panel();
-    var side_panel0 = statemap.side_panel(true);
-    side_panel0.style("background-color","#e0e0e0");
-
-    var side_panel = side_panel0.append("div").style("padding","15px").style("border-left","1px solid #ffffff")
-    side_panel.append("p").classed("mi-title3",true).text("Devaluation of black homes");
-    side_panel.append("p").style("font-style","italic").text("More intuitive definition of what this meaures by metropolitan area, 20YY")
+    //BAR CHART DOM
+    var side_panel = bar_container.append("div").style("padding","15px").style("border-left","1px solid #ffffff")
 
     var bars_svg = side_panel.append("svg").attr("width","100%").attr("height","100%");
     
@@ -123,11 +126,17 @@ function main(){
     tickLabels.enter().append("text").classed("tick-mark",true).merge(tickLabels)
         .attr("x", function(d){return bar_scale(d)+"%"}).attr("dx","-12")
         .attr("text-anchor","start").attr("y","0").attr("fill",palette.gray).style("font-size","13px")
-        .text(function(d){return format.shch0(d)});
-
+        .text(function(d){return format.shch0(d)}); 
+      
+    //DRAW BARS - FUNCTION DEFINED BELOW    
     var highlight_dots = draw_bars(bars_svg, bars_main, bar_scale, devaluation_scale, mobile_panel);
 
-    //map tooltips
+    //MAP LAYOUT
+    var statemap = map(map_container.node());
+    var state_layer = statemap.add_states(state_geos.features, function(d){return d.properties.geo_id}).attr({fill:"#ffffff", stroke:"#aaaaaa"});
+    var cbsa_layer = statemap.add_points(cbsa_geos2, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({fill:"none", "stroke-width":"3", stroke:fill, r:radius_scale, "pointer-events":"all"});
+
+    //MAP TOOLTIPS
     cbsa_layer.tooltips(function(code){
      
       highlight_dots.style("visibility", function(d){return d.cbsa==code ? "visible" : "hidden"});
@@ -141,6 +150,12 @@ function main(){
       highlight_dots.style("visibility", "hidden");
     });
 
+    setTimeout(function(){
+      map_layout.dims();
+      statemap.print();
+    }, 0);
+
+  
     //dashboards
     dashboard(dash_container, cbsa_geos2, lookup);
 
@@ -299,7 +314,7 @@ function draw_bars(svg, bars_main, bar_scale, devaluation_scale, mobile_swatches
     //draw (mobile) legend swatches
     var swatches_up = mobile_swatches.selectAll("div.legend-swatch").data(bar_groups);
     swatches_up.exit().remove();
-    var swatches_enter = swatches_up.enter().append("div").classed("legend-swatch",true);
+    var swatches_enter = swatches_up.enter().append("div").classed("legend-swatch",true).style("clear", function(d,i){return i==3 ? "left" : "none"});
     swatches_enter.append("div");
     swatches_enter.append("p");
 
@@ -311,6 +326,6 @@ function draw_bars(svg, bars_main, bar_scale, devaluation_scale, mobile_swatches
 
     return dot;
 }
-//
+//end draw_bars()
 
 document.addEventListener("DOMContentLoaded", main);
