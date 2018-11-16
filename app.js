@@ -862,7 +862,7 @@
 	        draw();
 	    };
 
-	    //deprecated -- always responsive
+	    //deprecated -- always responsive unless the user specifies a width to print() method
 	    /*map_methods.responsive = function(onoff){
 	        if(arguments.length > 0){
 	            scope.responsive = !!onoff;
@@ -16367,7 +16367,7 @@
 	function dashboard(container, cbsas, lookup){
 	    var wrap = d3.select(container);
 
-	    console.log(cbsas);
+	    //console.log(cbsas);
 
 	    var header = wrap.append("div").classed("c-fix",true);
 

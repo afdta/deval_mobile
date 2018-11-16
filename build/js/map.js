@@ -522,7 +522,7 @@ function map(container){
         draw();
     }
 
-    //deprecated -- always responsive
+    //deprecated -- always responsive unless the user specifies a width to print() method
     /*map_methods.responsive = function(onoff){
         if(arguments.length > 0){
             scope.responsive = !!onoff;

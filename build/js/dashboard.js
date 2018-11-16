@@ -4,7 +4,7 @@ import map from './map.js';
 export default function dashboard(container, cbsas, lookup){
     var wrap = d3.select(container);
 
-    console.log(cbsas);
+    //console.log(cbsas);
 
     var header = wrap.append("div").classed("c-fix",true);
 
