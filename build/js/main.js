@@ -5,7 +5,7 @@ import {state_geos, state_mesh} from './state-geos.js';
 import cbsa_geos from './cbsa-geos';
 import layout from './layout.js';
 import map from './map.js';
-import all_data from './all-data.js';
+import {all_data, names} from './all-data.js';
 import palette from './palette.js';
 import dashboard from './dashboard.js';
 
@@ -23,11 +23,11 @@ function main(){
     var h = d.neighborhood;
     lookup[c] = d;
 
-    if(h.Less1.CBSA != h.B1_5.CBSA || h.B1_5.CBSA != h.B5_10.CBSA || 
-       h.B10_20.CBSA != h.B20_50.CBSA || h.B20_50.CBSA != h.Major.CBSA){
+    if(h.Less1.X1 != h.B1_5.X1 || h.B1_5.X1 != h.B5_10.X1 || 
+       h.B10_20.X1 != h.B20_50.X1 || h.B20_50.X1 != h.Major.X1){
          //console.warn("Invalid merge");
          //console.log(d);
-         //2 obs fail this test: data not available for all levels -- need to handle nulls
+         //2 obs (Muncie, Shreveport) fail this test: data not available for all levels -- need to handle nulls
     }
     
   });
