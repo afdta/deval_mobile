@@ -58,7 +58,7 @@ function map(container){
                             ;
 
     //build svg filters
-    var defs = wrap0.append("div").style("height","0px").append("svg").append("defs");
+    var defs = wrap0.append("div").style("height","0px").style("overflow","hidden").append("svg").append("defs");
     var filter = defs.append("filter").attr("id","feBlur").attr("width","150%").attr("height","150%");
     filter.append("feOffset").attr("result","offsetout").attr("in","SourceGraphic").attr("dx","6").attr("dy","6");
     filter.append("feColorMatrix").attr("result","matrixout").attr("in","offsetout").attr("type","matrix").attr("values","0.25 0 0 0 0 0 0.25 0 0 0 0 0 0.25 0 0 0 0 0 1 0");

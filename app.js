@@ -398,7 +398,7 @@
 	                            ;
 
 	    //build svg filters
-	    var defs = wrap0.append("div").style("height","0px").append("svg").append("defs");
+	    var defs = wrap0.append("div").style("height","0px").style("overflow","hidden").append("svg").append("defs");
 	    var filter = defs.append("filter").attr("id","feBlur").attr("width","150%").attr("height","150%");
 	    filter.append("feOffset").attr("result","offsetout").attr("in","SourceGraphic").attr("dx","6").attr("dy","6");
 	    filter.append("feColorMatrix").attr("result","matrixout").attr("in","offsetout").attr("type","matrix").attr("values","0.25 0 0 0 0 0 0.25 0 0 0 0 0 0.25 0 0 0 0 0 1 0");
@@ -17267,15 +17267,239 @@
 	  }
 	]
 	;
+	var names = 
+	{
+	    "X1": "CBSA",
+	    "X2": "CBSANAME",
+	    "X3": "Number_of_Tracts",
+	    "X4": "Type of neighborhood (machine readable name)",
+	    "X5": "Type of neighborhood",
+	    "X6": "Mean number of professional sector establishments in tract (NAICS=54)",
+	    "X7": "Mean number of library establishments in tract (NAICS=51912)",
+	    "X8": "Mean number of museums in tracts (NAICS=712)",
+	    "X9": "Mean number of restaurants in tract (NAICS=722)",
+	    "X10": "Mean number of gas stations in tract (NAICS=447)",
+	    "X11": "Mean time of average commute in minutes",
+	    "X12": "Mean percent of workers who commute via carpool (pctX100)",
+	    "X13": "Mean percent of workers who commute via public transportation (pctX100)",
+	    "X14": "Total tract population",
+	    "X15": "Black population",
+	    "X16": "Median list price of owner-occupied homes per sq foot, 2012-2016",
+	    "X17": "Median list price of owner-occupied homes, 2012-2016",
+	    "X18": "Proficiency rate for public elementary schools",
+	    "X19": "EPA Walkability Index (1-20)"
+	  }
+	;
+
+	var lookup = {};
+	all_data.forEach(function(d,i){
+	    var c = d.summary.cbsa;
+	    var h = d.neighborhood;
+	    lookup[c] = d;
+
+	    if(h.Less1.X1 != h.B1_5.X1 || h.B1_5.X1 != h.B5_10.X1 || 
+	        h.B10_20.X1 != h.B20_50.X1 || h.B20_50.X1 != h.Major.X1);
+	});
+
+
+	//scales for map and accompanying bar chart
+	var extent = d3.extent(all_data, function(d){return d.summary.zil_deval_blk50_3});
+	var absmax0 = d3.max(all_data, function(d){return Math.abs(d.summary.zil_deval_blk50_3)});
+	var absmax = 0.6; //manually clip off extremes
+	var redscale = d3.scaleQuantize().domain([0, absmax]).range(palette.reds);
+	var greenscale = d3.scaleQuantize().domain([0, absmax]).range(palette.greens);
+	var rscale = d3.scaleSqrt().domain([0, absmax0]).range([0,15]);
+
+	var bar_scale = d3.scaleLinear().domain(extent).range([5,85]).nice();
+	var devaluation_scale = function(v){
+	    if(v != null){
+	        return v >= 0 ? greenscale(v) : redscale(Math.abs(v));
+	    }
+	    else{
+	        return palette.na;
+	    }
+	};
+
+	var radius_scale = function(cbsa){
+	    var v = lookup[cbsa].summary.zil_deval_blk50_3;
+	    if(v != null){
+	        return(rscale(Math.abs(v)));
+	    }
+	    else{
+	        return 0;
+	    }
+	};
+
+	var fill = function(cbsa){
+	    if(lookup.hasOwnProperty(cbsa)){
+	        var d = lookup[cbsa].summary.zil_deval_blk50_3;
+	        var c = devaluation_scale(d);
+	        return c;
+	    }
+	    else{
+	        return palette.na;
+	    }
+	};
+
+	function neighborhood_bar_scope(){
+	    var scope = {
+	        bar_height: 12,
+	        types: ["Less1", "B1_5", "B5_10", "B10_20", "B20_50", "Major"],
+	        type_fill: ['#ff96bc', '#e3759c', '#bf597d', '#9b4061', '#762b46', '#4f192d'],
+	        type_labels:  {
+	            Less1:"Less than 1%",
+	            B1_5:"1%–5%",
+	            B5_10:"5%–10%",
+	            B10_20:"10%–20%",
+	            B20_50:"20%–50%",
+	            Major:"50%+",
+	        },
+	        formats : {
+	            X6: format.fn0("num1"),
+	            X7: format.fn0("num1"),
+	            X8: format.fn0("num1"),
+	            X9: format.fn0("num1"),
+	            X10: format.fn0("num1"),
+	            X11: format.fn0("num1"),
+	            X12: function(v){return format.fn(v, "num1") + "%"},
+	            X13: function(v){return format.fn(v, "num1") + "%"},
+	            X14: format.fn0("num0"),
+	            X15: format.fn0("num0"),
+	            X16: format.fn0("doll0"),
+	            X17: format.fn0("doll0"),
+	            X18: format.fn0("num1"),
+	            X19: format.fn0("num1")
+	        }
+	    };
+
+	    scope.fill = d3.scaleOrdinal().domain(scope.types).range(scope.type_fill).unknown("#dddddd");
+
+	    return scope;
+	}
+
+	function neighborhood_bars(container, indicator){
+
+	    var scope = neighborhood_bar_scope();
+
+	    var wrap = d3.select(container).style("border-top","1px solid #ffffff")
+	                    .style("padding","10px 0px");
+
+	    var all_ = all_data.map(function(d){
+	        return scope.types.map(function(t){
+	            return d.neighborhood[t][indicator];
+	        }) 
+	    });
+	    var all = [].concat.apply([], all_);
+	    var extent_ = d3.extent(all);
+	    var extent = [extent_[0] < 0 ? extent_[0] : 0, extent_[1] > 0 ? extent_[1] : 0];
+	    var range = [extent[0] == 0 ? 0 : 10, extent[1] == 0 ? 100 : 90];
+
+	    var scale = d3.scaleLinear().domain(extent).range(range);
+	    var zero = scale(0);
+
+	    var width = function(v){
+	        if(v!=null){
+	            return v >= 0 ? scale(v) - zero : zero - scale(v);
+	        }
+	        else{
+	            return 0;
+	        }
+	    };
+
+	    var x = function(v){
+	        if(v!=null){
+	            return v >= 0 ? zero : zero - scale(v);
+	        }
+	        else{
+	            return 0;
+	        }
+	    };
+
+	    var title_wrap = wrap.append("div").classed("c-fix",true);
+
+	    title_wrap.append("p").text(names[indicator]).style("margin","0px")
+	                .style("font-weight","normal");
+
+	    var svg = wrap.append("svg")
+	                  .attr("width","100%")
+	                  .attr("height", (15+(scope.types.length*scope.bar_height))+"px");
+
+	    function update(cbsa){
+	        if(lookup.hasOwnProperty(cbsa)){
+	            var data = scope.types.map(function(t){
+	                return {type: t, val: lookup[cbsa].neighborhood[t][indicator]}
+	            });
+	            var bars = svg.selectAll("rect").data(data);
+	            bars.exit().remove();
+	            bars.enter().append("rect").merge(bars)
+	                .attr("x", function(d){return x(d.val) + "%"})
+	                .attr("y", function(d,i){return 5 + (i * (scope.bar_height + 1))})
+	                .attr("height", scope.bar_height)
+	                .attr("fill", function(d){return scope.fill(d.type)})
+	                .transition().duration(700)
+	                .attr("width", function(d){return width(d.val) + "%"});
+
+	            var labels = svg.selectAll("text").data(data);
+	                labels.exit().remove();
+	                labels.enter().append("text").merge(labels)
+	                    .attr("y", function(d,i){return 5 + (i * (scope.bar_height + 1))})
+	                    .attr("dy", 10)
+	                    .attr("dx", 3)
+	                    .style("font-size","13px")
+	                    .text(function(d){return scope.formats[indicator](d.val)})
+	                    .transition().duration(700)
+	                    .attr("x", function(d){return (x(d.val) + width(d.val)) + "%"});
+	        }
+	        else{
+	            svg.selectAll("*").remove();
+	        }
+	    }
+
+	    return update;
+	}
+
+	function neighborhood_legend(container){
+
+	    var scope = neighborhood_bar_scope();
+
+	    var wrap = d3.select(container).style("border-top","1px solid #ffffff")
+	                    .style("padding","10px 0px");
+
+	    wrap.append("p").html('<strong style="color:#999999">Key</strong><br />Share of neighborhood population that is black')
+	                    .style("font-weight","bold").style("margin","0px");
+
+	    var svg = wrap.append("svg")
+	                  .attr("width","100%")
+	                  .attr("height", (15+(scope.types.length*scope.bar_height))+"px");
+
+	    var bars = svg.selectAll("rect").data(scope.types);
+	    bars.exit().remove();
+	    bars.enter().append("rect").merge(bars)
+	        .attr("x", "0%")
+	        .attr("y", function(d,i){return 5 + (i * (scope.bar_height + 1))})
+	        .attr("height", scope.bar_height)
+	        .attr("width", scope.bar_height)
+	        .attr("fill", function(d){return scope.fill(d)});
+
+	    var labels = svg.selectAll("text").data(scope.types);
+	        labels.exit().remove();
+	        labels.enter().append("text").merge(labels)
+	            .attr("x", scope.bar_height)
+	            .attr("y", function(d,i){return 5 + (i * (scope.bar_height + 1))})
+	            .attr("dy", 10)
+	            .attr("dx", 3)
+	            .style("font-size","13px")
+	            .style("font-weight","bold")
+	            .text(function(d){return scope.type_labels[d]});
+	}
 
 	function dashboard(container, cbsas, lookup){
 	    var wrap = d3.select(container);
 
 	    //console.log(cbsas);
 
-	    var header = wrap.append("div").classed("c-fix",true);
-
-	    var select_wrap = header.append("div").classed("select-wrap",true);
+	    var header = wrap.append("div").classed("c-fix",true).style("border-bottom","1px solid #ffffff");
+	    var select_wrap = header.append("div").classed("select-wrap",true).style("float","right");
 
 	    select_wrap.append("svg").attr("width","20px").attr("height","20px").style("position","absolute").style("top","45%").style("right","0px")
 	               .append("path").attr("d", "M0,0 L5,5 L10,0").attr("fill","none").attr("stroke", "#aaaaaa").attr("stroke-width","2px");
@@ -17296,26 +17520,41 @@
 
 	    var body = wrap.append("div").classed("c-fix",true).style("margin-top","24px").style("padding","0px 0px");
 
-	    var title_box = body.append("div").classed("c-fix",true).style("border","1px solid #ffffff").style("border-width","0px 0px 1px 0px").style("padding","10px 0px");
-	    var map_wrap = title_box.append("div").style("float","left").style("width", "130px").style("height", "50px").style("margin-right","15px");
-	    
-	    var highlight_map = map(map_wrap.node());
-	        highlight_map.add_states(state_geos.features, function(d){return d.properties.geo_id}).attr({fill:"#ffffff", stroke:"#dddddd", "stroke-width":"1px"});
-	        
-	    var cbsa_layer = highlight_map.add_points(cbsas, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({r:"3"});
-
-	    var title = title_box.append("p").classed("mi-title2",true).style("float","left").style("margin","15px 0px");
+	    var title_box = header.append("div").classed("c-fix",true).style("float","none");
 
 	    var panels = body.append("div").classed("c-fix mi-split",true).style("margin","32px 0px");
 	    
 	    var left_panel = panels.append("div");
 	    var right_panel = panels.append("div");
 
-	    left_panel.append("p").classed("mi-title3",true).text("Summary data here");
-	    left_panel.append("p").text("Which indicators?");
-	    right_panel.append("p").classed("mi-title3",true).text("Neighborhood level data here");
-	    right_panel.append("p").text("Which indicators?");
 
+	    var map_wrap = title_box.append("div").style("width", "110px").style("height", "50px").style("margin-right","15px").style("display","inline-block");
+	    
+	    var highlight_map = map(map_wrap.node());
+	        highlight_map.add_states(state_geos.features, function(d){return d.properties.geo_id}).attr({fill:"#ffffff", stroke:"#dddddd", "stroke-width":"1px"});
+	        
+	    var cbsa_layer = highlight_map.add_points(cbsas, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({r:"3"});
+
+	    var title = title_box.append("p").classed("mi-title1",true).style("display","inline-block").style("margin","15px 0px");
+
+
+
+	left_panel.append("p").text("...");
+
+	    right_panel.append("p").classed("mi-title3",true).text("Neighborhood characteristics by share of the population that is black");
+
+
+
+	    //X6 - X19
+	    var bar_updaters = [];
+	    var rp1 = right_panel.append("div").classed("grid-container",true);
+
+	    neighborhood_legend(rp1.append("div").node());
+
+	    var X = 5;
+	    while(++X <= 19){
+	        bar_updaters.push(neighborhood_bars(rp1.append("div").node(), "X"+X));
+	    }
 
 	    select.on("change", function(){
 	        scope.cbsa = this.value+"";
@@ -17330,14 +17569,20 @@
 	        }
 
 	        cbsa_layer.attr({stroke:function(d){return d==scope.cbsa ? "#333333" : "none"}, r:"3", fill:"none"});
-	        highlight_map.print(130);
+	        highlight_map.print(110);
 
 	        title.html(lookup[scope.cbsa].summary.cbsaname);
+
+	        bar_updaters.forEach(function(fn){
+	            fn(scope.cbsa);
+	        });
 	    }
 
 	    //initialize
 	    update();
 	}
+
+	//to do: split out bar chart for map
 
 	//main function
 	function main(){
@@ -17346,17 +17591,6 @@
 
 	  var compat = degradation();
 
-	  var lookup = {};
-	  all_data.forEach(function(d,i){
-	    var c = d.summary.cbsa;
-	    var h = d.neighborhood;
-	    lookup[c] = d;
-
-	    if(h.Less1.X1 != h.B1_5.X1 || h.B1_5.X1 != h.B5_10.X1 || 
-	       h.B10_20.X1 != h.B20_50.X1 || h.B20_50.X1 != h.Major.X1);
-	    
-	  });
-
 	  var cbsa_geos2 = cbsa_geos.filter(function(d){return lookup.hasOwnProperty(d.cbsa)})
 	                            .sort(function(a,b){
 	                              var aval = Math.abs(lookup[a.cbsa].summary.zil_deval_blk50_3);
@@ -17364,43 +17598,7 @@
 	                              return d3.descending(aval, bval);
 	                            });
 
-	  //scales
-	  var extent = d3.extent(all_data, function(d){return d.summary.zil_deval_blk50_3});
-	  var absmax0 = d3.max(all_data, function(d){return Math.abs(d.summary.zil_deval_blk50_3)});
-	  var absmax = 0.6; //manually clip off extremes
-	  var redscale = d3.scaleQuantize().domain([0, absmax]).range(palette.reds);
-	  var greenscale = d3.scaleQuantize().domain([0, absmax]).range(palette.greens);
-	  var rscale = d3.scaleSqrt().domain([0, absmax0]).range([0,15]);
-	  var bar_scale = d3.scaleLinear().domain(extent).range([5,85]).nice();
-	  var devaluation_scale = function(v){
-	    if(v != null){
-	      return v >= 0 ? greenscale(v) : redscale(Math.abs(v));
-	    }
-	    else{
-	      return palette.na;
-	    }
-	  };
 
-	  var radius_scale = function(cbsa){
-	    var v = lookup[cbsa].summary.zil_deval_blk50_3;
-	    if(v != null){
-	      return(rscale(Math.abs(v)));
-	    }
-	    else{
-	      return 0;
-	    }
-	  };
-
-	  var fill = function(cbsa){
-	    if(lookup.hasOwnProperty(cbsa)){
-	      var d = lookup[cbsa].summary.zil_deval_blk50_3;
-	      var c = devaluation_scale(d);
-	      return c;
-	    }
-	    else{
-	      return palette.na;
-	    }
-	  };
 
 
 	  //browser degradation
@@ -17492,14 +17690,14 @@
 
 
 	//bar chart draw/redraw
-	function draw_bars(svg, bars_main, bar_scale, devaluation_scale, mobile_swatches){
+	function draw_bars(svg, bars_main, bar_scale$$1, devaluation_scale$$1, mobile_swatches){
 
-	  var zero = bar_scale(0);
+	  var zero = bar_scale$$1(0);
 
 	  var width = function(d){
 	      var v = d.value;
 	      var w;
-	      var xpos = bar_scale(v);
+	      var xpos = bar_scale$$1(v);
 	      if(v >= 0){
 	          w = xpos - zero;
 	      }
@@ -17511,7 +17709,7 @@
 
 	  var bar_group_data = all_data.map(function(d){
 	      var val = d.summary.zil_deval_blk50_3;
-	      return {value: val, cbsa: d.summary.cbsa, color: devaluation_scale(val)}
+	      return {value: val, cbsa: d.summary.cbsa, color: devaluation_scale$$1(val)}
 	  });
 
 	  var bar_groups = d3.nest().key(function(d){return d.color}).entries(bar_group_data)
@@ -17572,7 +17770,7 @@
 
 	    b.attr("width", width)
 	        .attr("height", bar_height-0)
-	        .attr("x", function(d){return d.value < 0 ? bar_scale(d.value)+"%" : zero+"%"}) 
+	        .attr("x", function(d){return d.value < 0 ? bar_scale$$1(d.value)+"%" : zero+"%"}) 
 	        .attr("y",function(d,i){return i*bar_height})
 	        .attr("fill", function(d){return d.color})
 	        .attr("stroke", "none")
@@ -17602,7 +17800,7 @@
 	    var dot = dot_e.merge(dot_u);
 
 	    dot.attr("r", "2")
-	        .attr("cx", function(d){return bar_scale(d.value)+"%"}) 
+	        .attr("cx", function(d){return bar_scale$$1(d.value)+"%"}) 
 	        .attr("cy",function(d,i){return i*bar_height})
 	        .attr("transform", function(d){return d.value <= 0 ? "translate(-3,1)" : "translate(3,1)"})
 	        .attr("fill", function(d){
