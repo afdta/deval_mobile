@@ -91,6 +91,12 @@
 }
 
 /*select*/
+.metro-interactive select{
+    font-size:16px;
+    font-weight:bold;
+    font-family: 'PT Serif', serif;
+}
+
 .metro-interactive .select-wrap{   
     margin:15px 10px 15px 0px;
     padding-right:0px;
@@ -158,12 +164,48 @@
 
 .metro-interactive .grid-container{
     display: grid;
-    grid-template-columns: 30% 30% 30%;
+    grid-template-columns: 31% 31% 31%;
     grid-template-rows: auto auto;
     grid-auto-flow: row;
-    grid-column-gap: 3%;
-    grid-row-gap: 20px;
+    grid-column-gap: 2%;
+    grid-row-gap: 15px;
     width:100%;
+}
+
+.metro-interactive .mi-summary-card{
+    /*border-radius:5px;
+    background-color:#eeeeee;
+    padding:10px 12px;
+    margin:0px 0px 15px 0px;*/
+
+    padding:10px 12px;
+    margin:0px 0px 15px 0px;
+    border:1px solid #ffffff;
+    border-width:0px 0px 1px 0px;
+
+}
+
+.metro-interactive .mi-summary-card-title{
+    font-weight:bold;
+    margin:0px 0px 5px 0px;
+}
+.metro-interactive .mi-summary-card-value{
+    font-weight:bold;
+    font-size:3em;
+    margin:0px 0px 5px 0px;
+}
+
+.metro-interactive .three-inputs-module > *,
+.metro-interactive .three-inputs-module-cell{
+    width:30%;
+    margin-right:3%;
+    padding:15px;
+    display:inline-block;
+    vertical-align:bottom;
+    border:2px solid #ff96bc;
+    background-color:#eeeeee;
+    border-radius:15px;
+    text-align:left;
 }
 
 @media (min-width: 0px){
@@ -171,6 +213,12 @@
         width:auto;
         float:none;
     }
+
+    .metro-interactive p.mi-title1{font-size:28px;}
+    .metro-interactive p.mi-title2{font-size:22px;}
+    .metro-interactive p.mi-title3{font-size:16px;}
+
+    .metro-interactive .mi-desktop-view{display:none}
 }
 
 @media (min-width: 800px){
@@ -188,10 +236,21 @@
         padding:0px;
         border:none;
     }
+
+    .metro-interactive p.mi-title1{font-size:38px;}
+    .metro-interactive p.mi-title2{font-size:28px;}
+    .metro-interactive p.mi-title3{font-size:18px;}
+
+    .metro-interactive .mi-desktop-view{display:block}
 }
 
 
 @media (min-width:1000px){
     .metro-interactive .mi-mobile-view{
         display:none;
+    }
+
+    .metro-interactive p.mi-title1{font-size:42px;}
+    .metro-interactive p.mi-title2{font-size:32px;}
+    .metro-interactive p.mi-title3{font-size:22px;}
 }

@@ -17298,7 +17298,8 @@
 	    lookup[c] = d;
 
 	    if(h.Less1.X1 != h.B1_5.X1 || h.B1_5.X1 != h.B5_10.X1 || 
-	        h.B10_20.X1 != h.B20_50.X1 || h.B20_50.X1 != h.Major.X1);
+	        h.B10_20.X1 != h.B20_50.X1 || h.B20_50.X1 != h.Major.X1 ||
+	        c != h.Major.X1);
 	});
 
 
@@ -17381,8 +17382,9 @@
 
 	    var scope = neighborhood_bar_scope();
 
-	    var wrap = d3.select(container).style("border-top","1px solid #ffffff")
-	                    .style("padding","10px 0px");
+	    var wrap = d3.select(container).style("border-bottom","0px solid #aaaaaa")
+	                    .style("padding","10px 3%").style("background","#eeeeee")
+	                    .style("border-radius","5px");
 
 	    var all_ = all_data.map(function(d){
 	        return scope.types.map(function(t){
@@ -17417,7 +17419,7 @@
 
 	    var title_wrap = wrap.append("div").classed("c-fix",true);
 
-	    title_wrap.append("p").text(names[indicator]).style("margin","0px")
+	    title_wrap.append("p").text(names[indicator]).style("margin","0px 0px 5px 0px")
 	                .style("font-weight","normal");
 
 	    var svg = wrap.append("svg")
@@ -17462,11 +17464,12 @@
 
 	    var scope = neighborhood_bar_scope();
 
-	    var wrap = d3.select(container).style("border-top","1px solid #ffffff")
-	                    .style("padding","10px 0px");
+	    var wrap = d3.select(container).style("border-bottom","0px solid #aaaaaa")
+	                    .style("padding","10px 3%").style("background","#eeeeee")
+	                    .style("border-radius","5px");
 
 	    wrap.append("p").html('<strong style="color:#999999">Key</strong><br />Share of neighborhood population that is black')
-	                    .style("font-weight","bold").style("margin","0px");
+	                    .style("font-weight","bold").style("margin","0px 0px 5px 0px");
 
 	    var svg = wrap.append("svg")
 	                  .attr("width","100%")
@@ -17493,13 +17496,14 @@
 	            .text(function(d){return scope.type_labels[d]});
 	}
 
-	function dashboard(container, cbsas, lookup){
+	function dashboard(container, cbsas, lookup$$1){
 	    var wrap = d3.select(container);
 
 	    //console.log(cbsas);
 
 	    var header = wrap.append("div").classed("c-fix",true).style("border-bottom","1px solid #ffffff");
-	    var select_wrap = header.append("div").classed("select-wrap",true).style("float","right");
+	    var select_wrap = header.append("div").classed("select-wrap",true)
+	                                          .style("float","right");
 
 	    select_wrap.append("svg").attr("width","20px").attr("height","20px").style("position","absolute").style("top","45%").style("right","0px")
 	               .append("path").attr("d", "M0,0 L5,5 L10,0").attr("fill","none").attr("stroke", "#aaaaaa").attr("stroke-width","2px");
@@ -17520,7 +17524,10 @@
 
 	    var body = wrap.append("div").classed("c-fix",true).style("margin-top","24px").style("padding","0px 0px");
 
-	    var title_box = header.append("div").classed("c-fix",true).style("float","none");
+	    var title_box = header.append("div")
+	                        .classed("c-fix",true)
+	                        .style("float","none")
+	                        .style("padding-bottom","15px");
 
 	    var panels = body.append("div").classed("c-fix mi-split",true).style("margin","32px 0px");
 	    
@@ -17528,21 +17535,25 @@
 	    var right_panel = panels.append("div");
 
 
-	    var map_wrap = title_box.append("div").style("width", "110px").style("height", "50px").style("margin-right","15px").style("display","inline-block");
+	    var map_wrap = title_box.append("div").style("width", "130px")
+	                            .style("margin-right","15px")
+	                            .style("float","left")
+	                            .classed("mi-desktop-view",true);
 	    
 	    var highlight_map = map(map_wrap.node());
-	        highlight_map.add_states(state_geos.features, function(d){return d.properties.geo_id}).attr({fill:"#ffffff", stroke:"#dddddd", "stroke-width":"1px"});
+	        highlight_map.add_states(state_geos.features, function(d){return d.properties.geo_id}).attr({fill:"#ffffff", stroke:"#ff96bc", "stroke-width":"0.5px"});
 	        
 	    var cbsa_layer = highlight_map.add_points(cbsas, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({r:"3"});
 
-	    var title = title_box.append("p").classed("mi-title1",true).style("display","inline-block").style("margin","15px 0px");
+	    var title = title_box.append("p").classed("mi-title1",true)
+	                        .style("margin","0px 0px 0px 0px");
 
 
 
-	left_panel.append("p").text("...");
+	    //left_panel.append("p").text("Summary metrics here").classed("mi-title3");
 
 	    right_panel.append("p").classed("mi-title3",true).text("Neighborhood characteristics by share of the population that is black");
-
+	    right_panel.append("p").html("<em>Subtitle here, if helpful. NEED: Cleaned up variable titles and reorder. POSSIBLE: Add definitions on hover.</em>");
 
 
 	    //X6 - X19
@@ -17568,14 +17579,81 @@
 	            scope.cbsa = cbsa_;
 	        }
 
-	        cbsa_layer.attr({stroke:function(d){return d==scope.cbsa ? "#333333" : "none"}, r:"3", fill:"none"});
-	        highlight_map.print(110);
+	        cbsa_layer.attr({fill:function(d){return d==scope.cbsa ? "#9b4061" : "none"}, 
+	                         r:"5", 
+	                         stroke:function(d){return d==scope.cbsa ? "#ffffff" : "none"}
+	                        });
+	        highlight_map.print(130);
 
-	        title.html(lookup[scope.cbsa].summary.cbsaname);
+	        title.html(lookup$$1[scope.cbsa].summary.cbsaname);
 
 	        bar_updaters.forEach(function(fn){
 	            fn(scope.cbsa);
 	        });
+
+	        summary_stats(scope.cbsa);
+	    }
+
+	    //from david on summary stats
+
+	 
+	    // number, and gross wealth lost in the metro due to devaluation.
+
+	    function summary_stats(geo){
+	        
+	        var data;
+
+	        try{
+	            var D = lookup$$1[geo].summary;
+	            data = [
+	                {
+	                    title:"Black share of metro area population",
+	                    value:format.fn(D.pct_black2012_2016, "num1") + "%",
+	                    footer:"Variable used: pct_black2012_2016 || rank here?"
+	                },
+	                {
+	                    title:"Dissimilarity index",
+	                    value:format.fn(D.dis, "num1"),
+	                    footer:"Variable used: dis || add note on how to interpret value"
+	                },
+	                {
+	                    title:"Median home value",
+	                    value:format.fn(D.price_actual, "doll0"),
+	                    footer:"Variable used: price_actual"
+	                },
+	                {
+	                    title:"Average devaluation of black homes",
+	                    value:format.fn(D.zil_deval_blk50_3, "shch1"),
+	                    footer:"Variable used: zil_deval_blk50_3 | percentage points"
+	                },
+	                {
+	                    title:"Gross wealth lost",
+	                    value:"Which variable?",
+	                    footer:"Notes"
+	                }
+
+	            ];
+	        }
+	        catch(e){
+	            //console.log(e);
+	            data = [];
+	        }
+
+	        var divs = left_panel.selectAll("div.mi-summary-card").data(data);
+
+	        divs.exit().remove();
+
+	        var divs_enter = divs.enter().append("div").classed("mi-summary-card",true);
+	        divs_enter.append("p").classed("mi-summary-card-title",true);
+	        divs_enter.append("p").classed("mi-summary-card-value",true);
+	        divs_enter.append("p").classed("mi-summary-card-footer",true);
+
+	        var divs_final = divs_enter.merge(divs);
+
+	        divs_final.select("p.mi-summary-card-title").text(function(d){return d.title});
+	        divs_final.select("p.mi-summary-card-value").text(function(d){return d.value});
+	        divs_final.select("p.mi-summary-card-footer").text(function(d){return d.footer});
+
 	    }
 
 	    //initialize

@@ -8,7 +8,8 @@ all_data.forEach(function(d,i){
     lookup[c] = d;
 
     if(h.Less1.X1 != h.B1_5.X1 || h.B1_5.X1 != h.B5_10.X1 || 
-        h.B10_20.X1 != h.B20_50.X1 || h.B20_50.X1 != h.Major.X1){
+        h.B10_20.X1 != h.B20_50.X1 || h.B20_50.X1 != h.Major.X1 ||
+        c != h.Major.X1){
             //console.warn("Invalid merge");
             //console.log(d);
             //2 obs (Muncie, Shreveport) fail this test: data not available for all levels -- need to handle nulls
