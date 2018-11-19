@@ -6,23 +6,46 @@ import format from "../../../js-modules/formats.js";
 
 export default function dashboard(container, cbsas, lookup){
     var wrap = d3.select(container);
-
-    //console.log(cbsas);
+    
 
     var header = wrap.append("div").classed("c-fix",true).style("border-bottom","1px solid #ffffff");;
+    
+    var title_box = header.append("div")
+                        .classed("c-fix",true)
+                        .style("float","none")
+                        .style("clear","both")
+                        .style("padding-bottom","15px");
 
-    var select_wrap = header.append("div").classed("select-wrap",true)
-                                          .style("float","right");
 
+
+    var map_wrap = title_box.append("div").style("width", "110px")
+                        .style("margin-right","15px")
+                        .style("float","left")
+                        .classed("mi-desktop-view",true);
+
+    var title = title_box.append("p").classed("mi-title1",true)
+                        .style("margin","0px 0px 0px 0px")
+                        .style("float","left")
+                        .style("display","inline-block")
+                        .style("vertical-align","bottom");
+
+    var highlight_map = map(map_wrap.node());
+        highlight_map.add_states(state_geos.features, function(d){return d.properties.geo_id})
+                    .attr({fill:"#666666", stroke:"#ffffff", "stroke-width":"0.5px"});
+        
+    var cbsa_layer = highlight_map.add_points(cbsas, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({r:"3"});
+
+    var select_wrap = header.append("div").classed("select-wrap",true);
+    
     select_wrap.append("svg").attr("width","20px").attr("height","20px").style("position","absolute").style("top","45%").style("right","0px")
                .append("path").attr("d", "M0,0 L5,5 L10,0").attr("fill","none").attr("stroke", "#aaaaaa").attr("stroke-width","2px");
 
     var select = select_wrap.append("select");
     select.append("option").text("Select a metropolitan area").attr("disabled","yes").attr("selected","1").attr("hidden","1");
 
-    var options = select.selectAll("option")
+    var options = select.selectAll("option.cbsa-option")
                         .data(cbsas.slice(0).sort(function(a,b){return d3.ascending(a.name, b.name)} ))
-                        .enter().append("option")
+                        .enter().append("option").classed("cbsa-option",true)
                         .text(function(d){return d.name})
                         .attr("value", function(d){return d.cbsa})
                         ;
@@ -33,30 +56,10 @@ export default function dashboard(container, cbsas, lookup){
 
     var body = wrap.append("div").classed("c-fix",true).style("margin-top","24px").style("padding","0px 0px");
 
-    var title_box = header.append("div")
-                        .classed("c-fix",true)
-                        .style("float","none")
-                        .style("padding-bottom","15px");
-
     var panels = body.append("div").classed("c-fix mi-split",true).style("margin","32px 0px");
     
     var left_panel = panels.append("div");
     var right_panel = panels.append("div");
-
-
-    var map_wrap = title_box.append("div").style("width", "130px")
-                            .style("margin-right","15px")
-                            .style("float","left")
-                            .classed("mi-desktop-view",true);
-    
-    var highlight_map = map(map_wrap.node());
-        highlight_map.add_states(state_geos.features, function(d){return d.properties.geo_id}).attr({fill:"#ffffff", stroke:"#ff96bc", "stroke-width":"0.5px"});
-        
-    var cbsa_layer = highlight_map.add_points(cbsas, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({r:"3"});
-
-    var title = title_box.append("p").classed("mi-title1",true)
-                        .style("margin","0px 0px 0px 0px");
-
 
 
     //left_panel.append("p").text("Summary metrics here").classed("mi-title3");
@@ -92,7 +95,7 @@ export default function dashboard(container, cbsas, lookup){
                          r:"5", 
                          stroke:function(d){return d==scope.cbsa ? "#ffffff" : "none"}
                         });
-        highlight_map.print(130);
+        highlight_map.print(110);
 
         title.html(lookup[scope.cbsa].summary.cbsaname);
 
@@ -153,8 +156,8 @@ export default function dashboard(container, cbsas, lookup){
         divs.exit().remove();
 
         var divs_enter = divs.enter().append("div").classed("mi-summary-card",true);
-        divs_enter.append("p").classed("mi-summary-card-title",true);
-        divs_enter.append("p").classed("mi-summary-card-value",true);
+        divs_enter.append("p").classed("mi-summary-card-title mi-title3",true);
+        divs_enter.append("p").classed("mi-summary-card-value mi-title2",true);
         divs_enter.append("p").classed("mi-summary-card-footer",true);
 
         var divs_final = divs_enter.merge(divs);

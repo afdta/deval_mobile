@@ -24,6 +24,19 @@
     padding:32px 0px;
 }
 
+.metro-interactive .mi-section-panel-tag{
+    margin:64px auto 0px auto !important;
+}
+
+.metro-interactive .mi-section-panel-tag *{
+    color:#ffffff;
+    font-weight:bold;
+    display:inline-block;
+    background-color:#666666;
+    padding:8px 15px;
+    margin:0px 0px;
+}
+
 .metro-interactive .mi-center-col{
     max-width:1400px;
     margin:15px auto;
@@ -93,16 +106,14 @@
 /*select*/
 .metro-interactive select{
     font-size:16px;
-    font-weight:bold;
     font-family: 'PT Serif', serif;
 }
 
 .metro-interactive .select-wrap{   
-    margin:15px 10px 15px 0px;
+    margin:0px 10px 15px 0px;
     padding-right:0px;
-    position:relative;
-    float:left;
-    
+    position:relative;  
+    float:left;  
 }
 
 .metro-interactive .select-wrap:before{
@@ -115,7 +126,7 @@
     height: 100%;
     box-shadow: 2px 2px 9px rgba(0,0,0,0.4);
     border:1px solid #aaaaaa;
-    border-radius:5px;
+    border-radius:0px;
     box-sizing:border-box;
     pointer-events:none;
 }
@@ -129,7 +140,7 @@
     background:none;
     outline:none;
     border:none;
-    padding:8px 29px 8px 10px;
+    padding:6px 29px 6px 10px;
     top:1px;
     position:relative;
     -moz-appearance: none;
@@ -173,12 +184,7 @@
 }
 
 .metro-interactive .mi-summary-card{
-    /*border-radius:5px;
-    background-color:#eeeeee;
-    padding:10px 12px;
-    margin:0px 0px 15px 0px;*/
-
-    padding:10px 12px;
+    padding:0px 12px 10px 12px;
     margin:0px 0px 15px 0px;
     border:1px solid #ffffff;
     border-width:0px 0px 1px 0px;
@@ -191,7 +197,6 @@
 }
 .metro-interactive .mi-summary-card-value{
     font-weight:bold;
-    font-size:3em;
     margin:0px 0px 5px 0px;
 }
 
@@ -208,14 +213,15 @@
     text-align:left;
 }
 
+
 @media (min-width: 0px){
     .metro-interactive .mi-split > div{
         width:auto;
         float:none;
     }
 
-    .metro-interactive p.mi-title1{font-size:28px;}
-    .metro-interactive p.mi-title2{font-size:22px;}
+    .metro-interactive p.mi-title1{font-size:30px;}
+    .metro-interactive p.mi-title2{font-size:24px;}
     .metro-interactive p.mi-title3{font-size:16px;}
 
     .metro-interactive .mi-desktop-view{display:none}
@@ -224,14 +230,14 @@
 @media (min-width: 800px){
     .metro-interactive .mi-split > div{
         float:left;
-        width:61%;
+        width:71%;
         margin-left:3%;
         padding-left:3%;
         border-left:1px solid #ffffff;
     }
     
     .metro-interactive .mi-split > div:first-child{
-        width:35%;
+        width:25%;
         margin:0px;
         padding:0px;
         border:none;
