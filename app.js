@@ -582,9 +582,10 @@
 
 	                 
 	                if(path.size()==1){
-	                    var html = html_(key, path.node());
+	                    var node = path.node();
+	                    var html = html_(key, node);
 	                    var centroid = scope.path.centroid(path.datum());
-	                    show_tooltip.call(path.node(), centroid, html);
+	                    show_tooltip.call(node, centroid, html);
 	                }
 	                else{
 	                    //would only occur if user passes an invalid geocode
@@ -761,9 +762,10 @@
 	                });
 
 	                if(dot.size()==1){
-	                    var html = html_(key, dot.node()); 
+	                    var node = dot.node();
+	                    var html = html_(key, node); 
 	                    var centroid = dot.datum().xy;
-	                    show_tooltip.call(dot.node(), centroid, html);
+	                    show_tooltip.call(node, centroid, html);
 	                }
 	                else{
 	                    //would only occur if user passes an invalid geocode
