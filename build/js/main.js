@@ -9,7 +9,7 @@ import map from './map.js';
 import palette from './palette.js';
 import dashboard from './dashboard.js';
 
-import {lookup, bar_scale, devaluation_scale, radius_scale, fill} from './data.js';
+import {lookup, bar_scale, devaluation_scale, radius_scale, rscale, fill} from './data.js';
 
 import {all_data} from './all-data.js';
 
@@ -44,47 +44,52 @@ function main(){
     var mobile_panel = map_layout.panels.mobile.style("text-align","center").append("div")
                                   .style("display","inline-block").style("text-align","left");
 
-    map_layout.panels.title.style("margin-bottom","15px").style("text-align","center");
-    var title_wrap = map_layout.panels.title.append("div").style("display","inline-block").style("text-align","center");
+    map_layout.panels.title.style("margin-bottom","25px").style("text-align","center");
+    var title_wrap = map_layout.panels.title.append("div").style("display","block").style("text-align","center").style("border-bottom","1px solid #ffffff").style("padding-bottom","5px");
     
-    title_wrap.append("p").classed("mi-title2",true).text("Devaluation of black homes");
-    title_wrap.append("p").style("font-style","italic").text("More intuitive definition of what this meaures by metropolitan area, 20YY").style("margin","0px");
+    title_wrap.append("p").classed("mi-title2",true).text("Devaluation of black homes").style("margin-bottom","5px");
+    title_wrap.append("p").html("<em>Hover over a metro area for detail on the magnitude of its devaluation</em>")
 
-    //BAR CHART DOM
+    //LEGEND
     var side_panel = bar_container.append("div").style("padding","15px").style("border-left","1px solid #ffffff")
+    side_panel.append("p").html("<strong>Comparing home values in majority black neighborhoods with those where less than 1% of residents are black</strong>")
 
-    var bars_svg = side_panel.append("svg").attr("width","100%").attr("height","100%");
+    var devalued = side_panel.append("div").classed("c-fix",true).style("margin","10px 0px 30px 0px");
+    devalued.append("div").style("width","30px").style("height","1.25em").style("float","left").style("background-color",palette.red).style("margin","0px 5px 0px 0px");
+    devalued.append("p").html("<strong>Devaluation:</strong> Comparable homes in majority black neighborhoods are worth <strong>less ↘</strong>").style("margin","0px");
     
-    var bars_axis = bars_svg.append("g").attr("transform","translate(0,20)");
-    var bars_main = bars_svg.append("g");
+    var devalued_svg = devalued.append("svg").attr("width","170px").attr("height","50px").style("float","right");
+    devalued_svg.append("path").attr("d","M0,34 l165,0 l-7,-7").attr("stroke", "#555555").attr("stroke-width","2").attr("fill","none").attr("stroke-linejoin","round")
+    devalued_svg.append("text").text("Greater devaluation").style("font-size","13px").style("font-weight","bold").attr("y","49").attr("x",165).attr("text-anchor","end");
+    
+    var circlesD = devalued_svg.selectAll("circle").data([0.1, 0.2, 0.35, 0.6, 0.85]);
+    circlesD.enter().append("circle").merge(circlesD).attr("cx", function(d,i){
+        return (10 + (i*35) - i*(15-rscale(d)));
+    }).attr("cy",function(d){return 27-rscale(d)})
+    .attr("r", function(d,i){return rscale(d)})
+    .attr("fill","none")
+    .attr("stroke",palette.red)
+    .attr("stroke-width","3");
 
-    var bars_axis_line = bars_axis.append("line").classed("x-axis",true)
-                                  .attr("x1","0%")
-                                  .attr("x2","100%")
-                                  .attr("y1",5.5).attr("y2",5.5)
-                                  .attr("stroke",palette.mediumgray)
-                                  .style("shape-rendering","crispEdges")
-                                  ;
+    var appreciated = side_panel.append("div").classed("c-fix",true);
+    appreciated.append("div").style("width","30px").style("height","1.25em").style("float","left").style("background-color",palette.green).style("margin","0px 5px 0px 0px");
+    appreciated.append("p").html("<strong>Appreciation:</strong> Comparable homes in majority black neighborhoods are worth <strong>more ↗</strong>").style("margin","0px");
 
-    var tickvals = bar_scale.ticks(3);
+    var appreciated_svg = appreciated.append("svg").attr("width","170px").attr("height","50px").style("float","right");
+    appreciated_svg.append("path").attr("d","M0,34 l165,0 l-7,-7").attr("stroke", "#555555").attr("stroke-width","2").attr("fill","none").attr("stroke-linejoin","round")
+    appreciated_svg.append("text").text("Greater appreciation").style("font-size","13px").style("font-weight","bold").attr("y","49").attr("x",165).attr("text-anchor","end");
+    
+    var circlesA = appreciated_svg.selectAll("circle").data([0.1, 0.2, 0.35, 0.6, 0.85]);
+    circlesA.enter().append("circle").merge(circlesA).attr("cx", function(d,i){
+        return (10 + (i*35) - i*(15-rscale(d)));
+    }).attr("cy",function(d){return 27-rscale(d)})
+    .attr("r", function(d,i){return rscale(d)})
+    .attr("fill","none")
+    .attr("stroke",palette.green)
+    .attr("stroke-width","3");
 
-    var ticks = bars_axis.selectAll("line.tick-mark").data(tickvals);
-    ticks.exit().remove();
-    ticks.enter().append("line").classed("tick-mark",true).merge(ticks)
-        .attr("x1", function(d){return bar_scale(d)+"%"})
-        .attr("x2", function(d){return bar_scale(d)+"%"})
-        .attr("y1","5.5").attr("y2","10").attr("stroke",palette.mediumgray)
-        .style("shape-rendering","crispEdges");
-
-    var tickLabels = bars_axis.selectAll("text.tick-mark").data(tickvals);
-    tickLabels.exit().remove();
-    tickLabels.enter().append("text").classed("tick-mark",true).merge(tickLabels)
-        .attr("x", function(d){return bar_scale(d)+"%"}).attr("dx","-12")
-        .attr("text-anchor","start").attr("y","0").attr("fill",palette.gray).style("font-size","13px")
-        .text(function(d){return format.shch0(d)}); 
-      
-    //DRAW BARS - FUNCTION DEFINED BELOW    
-    var highlight_dots = draw_bars(bars_svg, bars_main, bar_scale, devaluation_scale, mobile_panel);
+    side_panel.append("p").style("margin","20px 0px").style("color","#555555")
+                        .html("<em>Metro area dots are sized according to relative devaluation, measured in percentage point differences</em>");
 
     //MAP LAYOUT
     var statemap = map(map_container.node());
@@ -94,8 +99,7 @@ function main(){
 
     //MAP TOOLTIPS
     cbsa_layer.tooltips(function(code, node){
-     
-      highlight_dots.style("visibility", function(d){return d.cbsa==code ? "visible" : "hidden"});
+    
 
       var dot = d3.select(node);
       var dots = map_panels.anno.selectAll("circle").data([0]);
@@ -105,13 +109,21 @@ function main(){
               .style("pointer-events","none")
               ;
 
-      return '<p style="margin:0rem;line-height:1.7em;"><strong>' + 
+      var price_actual = lookup[code].summary.price_actual;
+      var price_estimated = lookup[code].summary.price_estimated;
+      var price_diff = price_actual==null || price_estimated==null ? null : price_actual - price_estimated;
+
+      return '<p style="line-height:1.5em;margin-bottom:8px;"><strong>' + 
               lookup[code].summary.cbsaname + 
-             '</strong><br/>' + 
+              '</strong><p>' + 
+              '<p style="margin-bottom:8px;">Relative difference <br/>' +
               format.shch1(lookup[code].summary.zil_deval_blk50_3) + 
+              '</p>' + 
+              '<p>Price difference (language?)<br/>' + 
+              format.fn(price_diff, "dollch0") + 
              '</p>';
     }, function(){
-      highlight_dots.style("visibility", "hidden");
+
       map_panels.anno.selectAll("circle").remove();
     });
 

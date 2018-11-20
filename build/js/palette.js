@@ -6,7 +6,9 @@ var palette = {
   mediumgray: "#666666",
   na: "#cccccc",
   reds: ['#ff85b1', '#c5597f', '#8f2e51'],
-  greens: ['#a3f9a6', '#71c675', '#3f9646']
+  greens: ['#a3f9a6', '#71c675', '#3f9646'],
+  red:"#dd5988",
+  green:'#3f9646'
 }
 
 export default palette;

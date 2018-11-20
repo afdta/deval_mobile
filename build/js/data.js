@@ -28,7 +28,7 @@ var rscale = d3.scaleSqrt().domain([0, absmax0]).range([0,15]);
 var bar_scale = d3.scaleLinear().domain(extent).range([5,85]).nice();
 var devaluation_scale = function(v){
     if(v != null){
-        return v >= 0 ? greenscale(v) : redscale(Math.abs(v));
+        return v >= 0 ? palette.green : palette.red;
     }
     else{
         return palette.na;
@@ -57,4 +57,4 @@ var fill = function(cbsa){
 }
 
 
-export {lookup, devaluation_scale, radius_scale, fill, bar_scale};
+export {lookup, devaluation_scale, radius_scale, rscale, fill, bar_scale};
