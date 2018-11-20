@@ -580,11 +580,10 @@
 	                    return d.key == key;
 	                });
 
-	                var html = html_(key); 
-	                var centroid = [0,0];
-
+	                 
 	                if(path.size()==1){
-	                    centroid = scope.path.centroid(path.datum());
+	                    var html = html_(key, path.node());
+	                    var centroid = scope.path.centroid(path.datum());
 	                    show_tooltip.call(path.node(), centroid, html);
 	                }
 	                else{
@@ -761,16 +760,13 @@
 	                    return d.key == key;
 	                });
 
-	                var html = html_(key); 
-	                var centroid = [0,0];
-
 	                if(dot.size()==1){
-	                    centroid = dot.datum().xy;
+	                    var html = html_(key, dot.node()); 
+	                    var centroid = dot.datum().xy;
 	                    show_tooltip.call(dot.node(), centroid, html);
 	                }
 	                else{
 	                    //would only occur if user passes an invalid geocode
-	                    centroid = dot.datum().centroid;
 	                    console.warn("Multiple or no matching points.");
 	                } 
 	            };
