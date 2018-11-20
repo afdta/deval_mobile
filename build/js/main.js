@@ -90,11 +90,20 @@ function main(){
     var statemap = map(map_container.node());
     var state_layer = statemap.add_states(state_geos.features, function(d){return d.properties.geo_id}).attr({fill:"#ffffff", stroke:"#aaaaaa"});
     var cbsa_layer = statemap.add_points(cbsa_geos2, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({fill:"none", "stroke-width":"3", stroke:fill, r:radius_scale, "pointer-events":"all"});
+    var map_panels = statemap.panels();
 
     //MAP TOOLTIPS
-    cbsa_layer.tooltips(function(code){
+    cbsa_layer.tooltips(function(code, node){
      
       highlight_dots.style("visibility", function(d){return d.cbsa==code ? "visible" : "hidden"});
+
+      var dot = d3.select(node);
+      var dots = map_panels.anno.selectAll("circle").data([0]);
+          dots.enter().append("circle").merge(dots)
+              .attr("fill", dot.attr("stroke")).attr("r", dot.attr("r"))
+              .attr("cx", dot.attr("cx")).attr("cy", dot.attr("cy"))
+              .style("pointer-events","none")
+              ;
 
       return '<p style="margin:0rem;line-height:1.7em;"><strong>' + 
               lookup[code].summary.cbsaname + 
@@ -103,6 +112,7 @@ function main(){
              '</p>';
     }, function(){
       highlight_dots.style("visibility", "hidden");
+      map_panels.anno.selectAll("circle").remove();
     });
 
     setTimeout(function(){

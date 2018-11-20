@@ -23,6 +23,9 @@ function map(container){
     var g_back = svg.append("g");
     var g_main = svg.append("g");
     var g_front = svg.append("g");
+    var g_anno = svg.append("g");
+
+    var panels = {back:g_back, main:g_main, front:g_front, anno:g_anno}
 
     //tooltip
     var tooltip = map_panel.append("div")
@@ -518,6 +521,10 @@ function map(container){
     map_methods.print = function(width){
         dims(width);
         draw();
+    }
+
+    map_methods.panels = function(){
+        return panels;
     }
 
     //deprecated -- always responsive unless the user specifies a width to print() method
