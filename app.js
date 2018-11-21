@@ -17712,7 +17712,7 @@
 	    var map_container = map_layout.panels.map;
 	    var bar_container = map_layout.panels.side.style("background-color","#e0e0e0");    var dash_container = document.getElementById("mi-dash-panel");
 	    var mobile_panel = map_layout.panels.mobile.style("text-align","center").append("div")
-	                                  .style("display","inline-block").style("text-align","left");
+	                                  .style("text-align","left");
 
 	    map_layout.panels.title.style("margin-bottom","25px").style("text-align","center");
 	    var title_wrap = map_layout.panels.title.append("div").style("display","block").style("text-align","center").style("border-bottom","1px solid #ffffff").style("padding-bottom","5px");
@@ -17760,6 +17760,11 @@
 
 	    side_panel.append("p").style("margin","20px 0px 30px 0px").style("color","#555555")
 	                        .html("<em>Devaluation and appreciation are represented by percent difference between comparable homes. Hover over metro areas for detail on the magnitude of devaluation.</em>");
+
+	    //end desktop legend
+
+	    mobile_panel.append("p").html("<strong>Comparing home values in majority black neighborhoods with those where less than 1% of residents are black</strong>");
+	    mobile_panel.append("p").text("Mobile version of legend to be added");
 
 	    //MAP LAYOUT
 	    var statemap = map(map_container.node());
@@ -17812,7 +17817,7 @@
 	  }
 
 	} //close main()
-	//end draw_bars()
+
 
 	document.addEventListener("DOMContentLoaded", main);
 
