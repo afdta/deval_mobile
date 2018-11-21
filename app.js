@@ -17276,25 +17276,17 @@
 	;
 	var names = 
 	{
-	    "X1": "CBSA",
-	    "X2": "CBSANAME",
-	    "X3": "Number_of_Tracts",
-	    "X4": "Type of neighborhood (machine readable name)",
-	    "X5": "Type of neighborhood",
-	    "X6": "Mean number of professional sector establishments in tract (NAICS=54)",
-	    "X7": "Mean number of library establishments in tract (NAICS=51912)",
-	    "X8": "Mean number of museums in tracts (NAICS=712)",
-	    "X9": "Mean number of restaurants in tract (NAICS=722)",
-	    "X10": "Mean number of gas stations in tract (NAICS=447)",
-	    "X11": "Mean time of average commute in minutes",
-	    "X12": "Mean percent of workers who commute via carpool (pctX100)",
-	    "X13": "Mean percent of workers who commute via public transportation (pctX100)",
-	    "X14": "Total tract population",
+	    "X14": "Total population",
 	    "X15": "Black population",
-	    "X16": "Median list price of owner-occupied homes per sq foot, 2012-2016",
 	    "X17": "Median list price of owner-occupied homes, 2012-2016",
-	    "X18": "Proficiency rate for public elementary schools",
-	    "X19": "EPA Walkability Index (1-20)"
+	    "X16": "Median list price of owner-occupied homes per sq foot, 2012-2016",
+	    "X19": "EPA Walkability Index (1-20)",
+	    "X18": "Proficiency rate for children in public schools",
+	    "X11": "Mean commute time in minutes",
+	    "X13": "Mean percent of workers who commute via public transportation",
+	    "X10": "Mean number of gas stations",
+	    "X9": "Mean number of restaurants",
+	    "X7": "Mean number of libraries"
 	  }
 	;
 
@@ -17308,6 +17300,13 @@
 	        h.B10_20.X1 != h.B20_50.X1 || h.B20_50.X1 != h.Major.X1 ||
 	        c != h.Major.X1);
 	});
+
+	var dashboard_keys = [];
+	for(var k in names){
+	    if(names.hasOwnProperty(k)){
+	        dashboard_keys.push(k);
+	    }
+	}
 
 
 	//scales for map and accompanying bar chart
@@ -17389,9 +17388,7 @@
 
 	    var scope = neighborhood_bar_scope();
 
-	    var wrap = d3.select(container).style("border","1px solid #aaaaaa")
-	                    .style("padding","10px 15px").style("background","#ffffff")
-	                    .style("border-radius","0px");
+	    var wrap = d3.select(container);
 
 	    var all_ = all_data.map(function(d){
 	        return scope.types.map(function(t){
@@ -17427,7 +17424,7 @@
 	    var title_wrap = wrap.append("div").classed("c-fix",true);
 
 	    title_wrap.append("p").text(names[indicator]).style("margin","0px 0px 5px 0px")
-	                .style("font-weight","normal");
+	                .style("font-weight","bold");
 
 	    var svg = wrap.append("svg")
 	                  .attr("width","100%")
@@ -17471,16 +17468,14 @@
 
 	    var scope = neighborhood_bar_scope();
 
-	    var wrap = d3.select(container).style("border","1px solid #aaaaaa")
-	                    .style("padding","10px 15px").style("background","#ffffff")
-	                    .style("border-radius","0px").style("position","relative");
+	    var wrap = d3.select(container).style("border-color", palette.red);
 
-	    var tab = wrap.append("svg").attr("width","17px").attr("height","17px").style("position","absolute")
+	    var tab = wrap.append("svg").attr("width","20px").attr("height","20px").style("position","absolute")
 	                .style("left","-1px").style("top","-1px").append("path")
-	                .attr("d", "M0,0 L17,0 L0,17 Z").attr("fill","#bf597d");
+	                .attr("d", "M0,0 L20,0 L0,20 Z").attr("fill",palette.red);
 
 	    wrap.append("p").html('<strong style="color:#bf597d">Key</strong><br />Share of neighborhood population that is black')
-	                    .style("font-weight","bold").style("margin","0px 0px 5px 0px");
+	                    .style("font-weight","bold").style("margin","0px 0px 5px 0px").style("font-size","18px");
 
 	    var svg = wrap.append("svg")
 	                  .attr("width","100%")
@@ -17507,7 +17502,7 @@
 	            .text(function(d){return scope.type_labels[d]});
 	}
 
-	function dashboard(container, cbsas, lookup$$1){
+	function dashboard(container, cbsas, lookup, dashboard_keys){
 	    var wrap = d3.select(container);
 	    
 
@@ -17580,9 +17575,9 @@
 
 	    neighborhood_legend(rp1.append("div").node());
 
-	    var dash_panels = rp1.selectAll("div.dash-panel").data([7,9,10,11,13,14,15,16,17,18,19]).enter().append("div").classed("dash-panel",true);
+	    var dash_panels = rp1.selectAll("div.dash-panel").data(dashboard_keys).enter().append("div").classed("dash-panel",true);
 	    dash_panels.each(function(d){
-	        bar_updaters.push(neighborhood_bars(this, "X"+d));
+	        bar_updaters.push(neighborhood_bars(this, d));
 	    });
 
 
@@ -17604,7 +17599,7 @@
 	                        });
 	        highlight_map.print(110);
 
-	        title.html(lookup$$1[scope.cbsa].summary.cbsaname);
+	        title.html(lookup[scope.cbsa].summary.cbsaname);
 
 	        bar_updaters.forEach(function(fn){
 	            fn(scope.cbsa);
@@ -17623,7 +17618,7 @@
 	        var data;
 
 	        try{
-	            var D = lookup$$1[geo].summary;
+	            var D = lookup[geo].summary;
 	            data = [
 	                {
 	                    title:"Black share of metro area population",
@@ -17798,7 +17793,7 @@
 
 	  
 	    //dashboards
-	    dashboard(dash_container, cbsa_geos2, lookup);
+	    dashboard(dash_container, cbsa_geos2, lookup, dashboard_keys);
 
 	  }
 	  else{

@@ -9,7 +9,7 @@ import map from './map.js';
 import palette from './palette.js';
 import dashboard from './dashboard.js';
 
-import {lookup, bar_scale, devaluation_scale, radius_scale, rscale, fill} from './data.js';
+import {lookup, dashboard_keys, radius_scale, rscale, fill} from './data.js';
 
 import {all_data} from './all-data.js';
 
@@ -134,7 +134,7 @@ function main(){
 
   
     //dashboards
-    dashboard(dash_container, cbsa_geos2, lookup);
+    dashboard(dash_container, cbsa_geos2, lookup, dashboard_keys);
 
   }
   else{

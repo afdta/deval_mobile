@@ -1,10 +1,9 @@
 import {state_geos} from './state-geos.js';
 import map from './map.js';
 import {neighborhood_bars, neighborhood_legend} from './bar-chart-module';
-import {lookup} from './data.js';
 import format from "../../../js-modules/formats.js";
 
-export default function dashboard(container, cbsas, lookup){
+export default function dashboard(container, cbsas, lookup, dashboard_keys){
     var wrap = d3.select(container);
     
 
@@ -77,9 +76,9 @@ export default function dashboard(container, cbsas, lookup){
 
     neighborhood_legend(rp1.append("div").node());
 
-    var dash_panels = rp1.selectAll("div.dash-panel").data([7,9,10,11,13,14,15,16,17,18,19]).enter().append("div").classed("dash-panel",true);
+    var dash_panels = rp1.selectAll("div.dash-panel").data(dashboard_keys).enter().append("div").classed("dash-panel",true);
     dash_panels.each(function(d){
-        bar_updaters.push(neighborhood_bars(this, "X"+d));
+        bar_updaters.push(neighborhood_bars(this, d));
     });
 
 

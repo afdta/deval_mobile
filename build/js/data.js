@@ -16,6 +16,13 @@ all_data.forEach(function(d,i){
     }
 });
 
+var dashboard_keys = [];
+for(var k in names){
+    if(names.hasOwnProperty(k)){
+        dashboard_keys.push(k);
+    }
+}
+
 
 //scales for map and accompanying bar chart
 var extent = d3.extent(all_data, function(d){return d.summary.zil_deval_blk50_3});
@@ -57,4 +64,4 @@ var fill = function(cbsa){
 }
 
 
-export {lookup, devaluation_scale, radius_scale, rscale, fill, bar_scale};
+export {lookup, dashboard_keys, radius_scale, rscale, fill, bar_scale};

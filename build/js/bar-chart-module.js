@@ -1,6 +1,7 @@
 import {all_data, names} from './all-data.js';
 import {lookup} from './data.js';
 import format from "../../../js-modules/formats.js";
+import palette from "./palette.js";
 
 function neighborhood_bar_scope(){
     var scope = {
@@ -42,9 +43,7 @@ function neighborhood_bars(container, indicator){
 
     var scope = neighborhood_bar_scope();
 
-    var wrap = d3.select(container).style("border","1px solid #aaaaaa")
-                    .style("padding","10px 15px").style("background","#ffffff")
-                    .style("border-radius","0px");
+    var wrap = d3.select(container);
 
     var all_ = all_data.map(function(d){
         return scope.types.map(function(t){
@@ -80,7 +79,7 @@ function neighborhood_bars(container, indicator){
     var title_wrap = wrap.append("div").classed("c-fix",true);
 
     title_wrap.append("p").text(names[indicator]).style("margin","0px 0px 5px 0px")
-                .style("font-weight","normal");
+                .style("font-weight","bold");
 
     var svg = wrap.append("svg")
                   .attr("width","100%")
@@ -124,16 +123,14 @@ function neighborhood_legend(container){
 
     var scope = neighborhood_bar_scope();
 
-    var wrap = d3.select(container).style("border","1px solid #aaaaaa")
-                    .style("padding","10px 15px").style("background","#ffffff")
-                    .style("border-radius","0px").style("position","relative");
+    var wrap = d3.select(container).style("border-color", palette.red);
 
-    var tab = wrap.append("svg").attr("width","17px").attr("height","17px").style("position","absolute")
+    var tab = wrap.append("svg").attr("width","20px").attr("height","20px").style("position","absolute")
                 .style("left","-1px").style("top","-1px").append("path")
-                .attr("d", "M0,0 L17,0 L0,17 Z").attr("fill","#bf597d");
+                .attr("d", "M0,0 L20,0 L0,20 Z").attr("fill",palette.red);
 
     wrap.append("p").html('<strong style="color:#bf597d">Key</strong><br />Share of neighborhood population that is black')
-                    .style("font-weight","bold").style("margin","0px 0px 5px 0px");
+                    .style("font-weight","bold").style("margin","0px 0px 5px 0px").style("font-size","18px");
 
     var svg = wrap.append("svg")
                   .attr("width","100%")

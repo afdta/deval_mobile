@@ -16389,25 +16389,17 @@ var all_data =
 ;
 var names = 
 {
-    "X1": "CBSA",
-    "X2": "CBSANAME",
-    "X3": "Number_of_Tracts",
-    "X4": "Type of neighborhood (machine readable name)",
-    "X5": "Type of neighborhood",
-    "X6": "Mean number of professional sector establishments in tract (NAICS=54)",
-    "X7": "Mean number of library establishments in tract (NAICS=51912)",
-    "X8": "Mean number of museums in tracts (NAICS=712)",
-    "X9": "Mean number of restaurants in tract (NAICS=722)",
-    "X10": "Mean number of gas stations in tract (NAICS=447)",
-    "X11": "Mean time of average commute in minutes",
-    "X12": "Mean percent of workers who commute via carpool (pctX100)",
-    "X13": "Mean percent of workers who commute via public transportation (pctX100)",
-    "X14": "Total tract population",
+    "X14": "Total population",
     "X15": "Black population",
-    "X16": "Median list price of owner-occupied homes per sq foot, 2012-2016",
     "X17": "Median list price of owner-occupied homes, 2012-2016",
-    "X18": "Proficiency rate for public elementary schools",
-    "X19": "EPA Walkability Index (1-20)"
+    "X16": "Median list price of owner-occupied homes per sq foot, 2012-2016",
+    "X19": "EPA Walkability Index (1-20)",
+    "X18": "Proficiency rate for children in public schools",
+    "X11": "Mean commute time in minutes",
+    "X13": "Mean percent of workers who commute via public transportation",
+    "X10": "Mean number of gas stations",
+    "X9": "Mean number of restaurants",
+    "X7": "Mean number of libraries"
   }
 ;
 export {all_data, names};
