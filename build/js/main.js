@@ -13,9 +13,6 @@ import {lookup, dashboard_keys, radius_scale, rscale, fill} from './data.js';
 
 import {all_data} from './all-data.js';
 
-
-//to do: split out bar chart for map
-
 //main function
 function main(){
 
@@ -48,7 +45,7 @@ function main(){
     var title_wrap = map_layout.panels.title.append("div").style("display","block").style("text-align","center").style("border-bottom","1px solid #ffffff").style("padding-bottom","5px");
     
     title_wrap.append("p").classed("mi-title2",true).text("Devaluation of black homes").style("margin-bottom","5px");
-    title_wrap.append("p").html("<em>Hover over a metro area for detail on the magnitude of its devaluation of homes in majority black neighborhoods</em>")
+    title_wrap.append("p").html("<em>113 metropolitan areas with at least one majority black neighborhood</em>")
 
     //LEGEND
     var side_panel = bar_container.append("div").style("padding","15px").style("border-left","1px solid #ffffff")
@@ -89,7 +86,7 @@ function main(){
     .attr("stroke-width","3");
 
     side_panel.append("p").style("margin","20px 0px 30px 0px").style("color","#555555")
-                        .html("<em>Devaluation and appreciation are represented by percent difference between comparable homes.</em>");
+                        .html("<em>Devaluation and appreciation are represented by percent difference between comparable homes. Hover over metro areas for detail on the magnitude of devaluation.</em>");
 
     //MAP LAYOUT
     var statemap = map(map_container.node());

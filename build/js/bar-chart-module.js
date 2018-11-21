@@ -22,14 +22,14 @@ function neighborhood_bar_scope(){
             X8: format.fn0("num1"),
             X9: format.fn0("num1"),
             X10: format.fn0("num1"),
-            X11: format.fn0("num1"),
+            X11: format.fn0("num0"),
             X12: function(v){return format.fn(v, "num1") + "%"},
             X13: function(v){return format.fn(v, "num1") + "%"},
             X14: format.fn0("num0"),
             X15: format.fn0("num0"),
             X16: format.fn0("doll0"),
             X17: format.fn0("doll0"),
-            X18: format.fn0("num1"),
+            X18: format.fn0("num2"),
             X19: format.fn0("num1")
         }
     }
@@ -90,6 +90,19 @@ function neighborhood_bars(container, indicator){
             var data = scope.types.map(function(t){
                 return {type: t, val: lookup[cbsa].neighborhood[t][indicator]}
             });
+
+            /*var dashes = svg.selectAll("line").data(scope.types);
+            dashes.exit().remove();
+            dashes.enter().append("line").merge(dashes)
+                .attr("x1", zero + "%").attr("x2", zero + "%")
+                .attr("y1", function(d,i){return (i*(scope.bar_height+1))})
+                .attr("y2", function(d,i){return (i*(scope.bar_height+1))+scope.bar_height})
+                .attr("stroke","#888888")
+                .style("shape-rendering","crispEdges")
+                .attr("transform","translate(1,5)")
+                ;*/
+
+
             var bars = svg.selectAll("rect").data(data);
             bars.exit().remove();
             bars.enter().append("rect").merge(bars)
@@ -105,7 +118,7 @@ function neighborhood_bars(container, indicator){
                 labels.enter().append("text").merge(labels)
                     .attr("y", function(d,i){return 5 + (i * (scope.bar_height + 1))})
                     .attr("dy", 10)
-                    .attr("dx", 3)
+                    .attr("dx", function(d){return d.val==0 ? 0 : 3})
                     .style("font-size","13px")
                     .text(function(d){return scope.formats[indicator](d.val)})
                     .transition().duration(700)

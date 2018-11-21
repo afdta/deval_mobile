@@ -338,7 +338,7 @@
 	  na: "#cccccc",
 	  reds: ['#ff85b1', '#c5597f', '#8f2e51'],
 	  greens: ['#a3f9a6', '#71c675', '#3f9646'],
-	  red:"#dd5988",
+	  red:"#a92760",
 	  green:'#3f9646'
 	};
 
@@ -17367,14 +17367,14 @@
 	            X8: format.fn0("num1"),
 	            X9: format.fn0("num1"),
 	            X10: format.fn0("num1"),
-	            X11: format.fn0("num1"),
+	            X11: format.fn0("num0"),
 	            X12: function(v){return format.fn(v, "num1") + "%"},
 	            X13: function(v){return format.fn(v, "num1") + "%"},
 	            X14: format.fn0("num0"),
 	            X15: format.fn0("num0"),
 	            X16: format.fn0("doll0"),
 	            X17: format.fn0("doll0"),
-	            X18: format.fn0("num1"),
+	            X18: format.fn0("num2"),
 	            X19: format.fn0("num1")
 	        }
 	    };
@@ -17435,6 +17435,19 @@
 	            var data = scope.types.map(function(t){
 	                return {type: t, val: lookup[cbsa].neighborhood[t][indicator]}
 	            });
+
+	            /*var dashes = svg.selectAll("line").data(scope.types);
+	            dashes.exit().remove();
+	            dashes.enter().append("line").merge(dashes)
+	                .attr("x1", zero + "%").attr("x2", zero + "%")
+	                .attr("y1", function(d,i){return (i*(scope.bar_height+1))})
+	                .attr("y2", function(d,i){return (i*(scope.bar_height+1))+scope.bar_height})
+	                .attr("stroke","#888888")
+	                .style("shape-rendering","crispEdges")
+	                .attr("transform","translate(1,5)")
+	                ;*/
+
+
 	            var bars = svg.selectAll("rect").data(data);
 	            bars.exit().remove();
 	            bars.enter().append("rect").merge(bars)
@@ -17450,7 +17463,7 @@
 	                labels.enter().append("text").merge(labels)
 	                    .attr("y", function(d,i){return 5 + (i * (scope.bar_height + 1))})
 	                    .attr("dy", 10)
-	                    .attr("dx", 3)
+	                    .attr("dx", function(d){return d.val==0 ? 0 : 3})
 	                    .style("font-size","13px")
 	                    .text(function(d){return scope.formats[indicator](d.val)})
 	                    .transition().duration(700)
@@ -17593,8 +17606,8 @@
 	            scope.cbsa = cbsa_;
 	        }
 
-	        cbsa_layer.attr({fill:function(d){return d==scope.cbsa ? "#9b4061" : "none"}, 
-	                         r:"5", 
+	        cbsa_layer.attr({fill:function(d){return d==scope.cbsa ? palette.red : "none"}, 
+	                         r:"4", 
 	                         stroke:function(d){return d==scope.cbsa ? "#ffffff" : "none"}
 	                        });
 	        highlight_map.print(110);
@@ -17621,29 +17634,29 @@
 	            var D = lookup[geo].summary;
 	            data = [
 	                {
-	                    title:"Black share of metro area population",
-	                    value:format.fn(D.pct_black2012_2016, "num1") + "%",
-	                    footer:"Variable used: pct_black2012_2016 || rank here?"
-	                },
-	                {
-	                    title:"Dissimilarity index",
-	                    value:format.fn(D.dis, "num1"),
-	                    footer:"Variable used: dis || add note on how to interpret value"
-	                },
-	                {
-	                    title:"Median home value",
+	                    title:"Median home value in majority black neighborhoods",
 	                    value:format.fn(D.price_actual, "doll0"),
-	                    footer:"Variable used: price_actual"
+	                    footer:""
 	                },
 	                {
-	                    title:"Average devaluation of black homes",
+	                    title:"Estimated median home value in majority black neighborhoods, in absence of devaluation",
+	                    value:format.fn(D.price_estimated, "doll0"),
+	                    footer:""
+	                },
+	                {
+	                    title:"Average devaluation of homes in majority black neighborhoods",
 	                    value:format.fn(D.zil_deval_blk50_3, "pct1"),
 	                    footer:""
 	                },
 	                {
-	                    title:"Gross wealth lost",
-	                    value:"Which variable?",
-	                    footer:"Notes"
+	                    title:"Black share of metro area population",
+	                    value:format.fn(D.pct_black2012_2016, "num1") + "%",
+	                    footer:""
+	                },
+	                {
+	                    title:"Dissimilarity index",
+	                    value:format.fn(D.dis, "num2"),
+	                    footer:format.fn(D.dis, "sh0") + " of the white population would need to move to a different neighborhood for the white and black population to be distributed evenly."
 	                }
 
 	            ];
@@ -17673,8 +17686,6 @@
 	    //initialize
 	    update();
 	}
-
-	//to do: split out bar chart for map
 
 	//main function
 	function main(){
@@ -17707,7 +17718,7 @@
 	    var title_wrap = map_layout.panels.title.append("div").style("display","block").style("text-align","center").style("border-bottom","1px solid #ffffff").style("padding-bottom","5px");
 	    
 	    title_wrap.append("p").classed("mi-title2",true).text("Devaluation of black homes").style("margin-bottom","5px");
-	    title_wrap.append("p").html("<em>Hover over a metro area for detail on the magnitude of its devaluation of homes in majority black neighborhoods</em>");
+	    title_wrap.append("p").html("<em>113 metropolitan areas with at least one majority black neighborhood</em>");
 
 	    //LEGEND
 	    var side_panel = bar_container.append("div").style("padding","15px").style("border-left","1px solid #ffffff");
@@ -17748,7 +17759,7 @@
 	    .attr("stroke-width","3");
 
 	    side_panel.append("p").style("margin","20px 0px 30px 0px").style("color","#555555")
-	                        .html("<em>Devaluation and appreciation are represented by percent difference between comparable homes.</em>");
+	                        .html("<em>Devaluation and appreciation are represented by percent difference between comparable homes. Hover over metro areas for detail on the magnitude of devaluation.</em>");
 
 	    //MAP LAYOUT
 	    var statemap = map(map_container.node());

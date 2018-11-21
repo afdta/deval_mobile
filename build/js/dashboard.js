@@ -2,6 +2,7 @@ import {state_geos} from './state-geos.js';
 import map from './map.js';
 import {neighborhood_bars, neighborhood_legend} from './bar-chart-module';
 import format from "../../../js-modules/formats.js";
+import palette from './palette.js';
 
 export default function dashboard(container, cbsas, lookup, dashboard_keys){
     var wrap = d3.select(container);
@@ -94,8 +95,8 @@ export default function dashboard(container, cbsas, lookup, dashboard_keys){
             scope.cbsa = cbsa_;
         }
 
-        cbsa_layer.attr({fill:function(d){return d==scope.cbsa ? "#9b4061" : "none"}, 
-                         r:"5", 
+        cbsa_layer.attr({fill:function(d){return d==scope.cbsa ? palette.red : "none"}, 
+                         r:"4", 
                          stroke:function(d){return d==scope.cbsa ? "#ffffff" : "none"}
                         });
         highlight_map.print(110);
@@ -122,29 +123,29 @@ export default function dashboard(container, cbsas, lookup, dashboard_keys){
             var D = lookup[geo].summary;
             data = [
                 {
-                    title:"Black share of metro area population",
-                    value:format.fn(D.pct_black2012_2016, "num1") + "%",
-                    footer:"Variable used: pct_black2012_2016 || rank here?"
-                },
-                {
-                    title:"Dissimilarity index",
-                    value:format.fn(D.dis, "num1"),
-                    footer:"Variable used: dis || add note on how to interpret value"
-                },
-                {
-                    title:"Median home value",
+                    title:"Median home value in majority black neighborhoods",
                     value:format.fn(D.price_actual, "doll0"),
-                    footer:"Variable used: price_actual"
+                    footer:""
                 },
                 {
-                    title:"Average devaluation of black homes",
+                    title:"Estimated median home value in majority black neighborhoods, in absence of devaluation",
+                    value:format.fn(D.price_estimated, "doll0"),
+                    footer:""
+                },
+                {
+                    title:"Average devaluation of homes in majority black neighborhoods",
                     value:format.fn(D.zil_deval_blk50_3, "pct1"),
                     footer:""
                 },
                 {
-                    title:"Gross wealth lost",
-                    value:"Which variable?",
-                    footer:"Notes"
+                    title:"Black share of metro area population",
+                    value:format.fn(D.pct_black2012_2016, "num1") + "%",
+                    footer:""
+                },
+                {
+                    title:"Dissimilarity index",
+                    value:format.fn(D.dis, "num2"),
+                    footer:format.fn(D.dis, "sh0") + " of the white population would need to move to a different neighborhood for the white and black population to be distributed evenly."
                 }
 
             ];

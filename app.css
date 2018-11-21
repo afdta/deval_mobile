@@ -190,6 +190,9 @@
     font-weight:bold;
     margin:0px 0px 5px 0px;
 }
+.metro-interactive .mi-summary-card-footer{
+    font-style:italic;
+}
 
 .metro-interactive .three-inputs-module > *,
 .metro-interactive .three-inputs-module-cell{
@@ -204,6 +207,21 @@
     text-align:left;
 }
 
+/*defining devaluation*/
+.metro-interactive .defining-devaluation{
+    max-width:1100px;
+    margin:0rem auto;
+    background-color:#ffffff;
+    border-radius:0px;
+    padding:20px 32px 20px 32px;
+}
+
+.metro-interactive .defining-devaluation strong{
+    color:#a92760;
+}
+
+
+/*end defining devaluation*/
 
 @media (min-width: 0px){
     .metro-interactive .mi-split > div{
@@ -233,6 +251,29 @@
         border-width:1px 0px 0px 0px;
         position:relative;
     }
+
+    .metro-interactive .defining-devaluation .as-table{
+        display:block;
+    }
+    
+    .metro-interactive .defining-devaluation .as-table > div{
+        display:block;
+    }
+    
+    .metro-interactive .defining-devaluation .as-table > div > div{
+        display:block;
+        border:1px solid #aaaaaa;
+        border-width:1px 0px 0px 0px;
+        padding:10px 0px;
+
+    }
+
+    .metro-interactive .defining-devaluation .actual-definition{
+        padding:10px 0px;
+        border:1px solid #aaaaaa;
+        border-width:1px 0px 0px 0px;
+    }
+
 }
 
 @media (min-width: 800px){
@@ -276,6 +317,44 @@
         border-width:1px 0px 0px 1px;
         position:relative;
     }
+
+    .metro-interactive .defining-devaluation .mi-title1{
+        margin:0px 0px 0px 20px;
+    }
+
+    .metro-interactive .defining-devaluation .as-table{
+        display:table;
+        border-spacing:20px;
+        border:1px solid #aaaaaa;
+        border-width:0px 0px 0px 0px;
+    }
+    
+    .metro-interactive .defining-devaluation .as-table > div{
+        display:table-row;
+    }
+    
+    .metro-interactive .defining-devaluation .as-table > div > div{
+        display:table-cell;
+        vertical-align:top;
+        padding:20px;
+        border:1px solid #aaaaaa;
+        border-width:1px 0px 0px 1px;
+    }    
+
+    .metro-interactive .defining-devaluation .actual-definition{
+        margin:0px 0px;
+        padding:0px 20px 20px 20px;
+        border:1px solid #aaaaaa;
+        border-width:0px 0px 0px 0px;
+    }
+    
+    .metro-interactive .defining-devaluation .actual-definition > div{
+        padding:20px 20px;
+        border:1px solid #aaaaaa;
+        border-width:1px 0px 0px 1px;
+        max-width:none;
+    }
+
 }
 
 
