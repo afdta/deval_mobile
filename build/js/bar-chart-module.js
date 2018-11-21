@@ -42,9 +42,9 @@ function neighborhood_bars(container, indicator){
 
     var scope = neighborhood_bar_scope();
 
-    var wrap = d3.select(container).style("border-bottom","0px solid #aaaaaa")
-                    .style("padding","10px 3%").style("background","#eeeeee")
-                    .style("border-radius","5px");
+    var wrap = d3.select(container).style("border","1px solid #aaaaaa")
+                    .style("padding","10px 15px").style("background","#ffffff")
+                    .style("border-radius","0px");
 
     var all_ = all_data.map(function(d){
         return scope.types.map(function(t){
@@ -124,11 +124,15 @@ function neighborhood_legend(container){
 
     var scope = neighborhood_bar_scope();
 
-    var wrap = d3.select(container).style("border-bottom","0px solid #aaaaaa")
-                    .style("padding","10px 3%").style("background","#eeeeee")
-                    .style("border-radius","5px");
+    var wrap = d3.select(container).style("border","1px solid #aaaaaa")
+                    .style("padding","10px 15px").style("background","#ffffff")
+                    .style("border-radius","0px").style("position","relative");
 
-    wrap.append("p").html('<strong style="color:#999999">Key</strong><br />Share of neighborhood population that is black')
+    var tab = wrap.append("svg").attr("width","17px").attr("height","17px").style("position","absolute")
+                .style("left","-1px").style("top","-1px").append("path")
+                .attr("d", "M0,0 L17,0 L0,17 Z").attr("fill","#bf597d");
+
+    wrap.append("p").html('<strong style="color:#bf597d">Key</strong><br />Share of neighborhood population that is black')
                     .style("font-weight","bold").style("margin","0px 0px 5px 0px");
 
     var svg = wrap.append("svg")

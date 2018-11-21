@@ -110,7 +110,7 @@
 }
 
 .metro-interactive .select-wrap{   
-    margin:0px 10px 15px 0px;
+    margin:15px 10px 0px 0px;
     padding-right:0px;
     position:relative;  
     float:left;  
@@ -175,18 +175,19 @@
 
 .metro-interactive .grid-container{
     display: grid;
-    grid-template-columns: 31% 31% 31%;
+    grid-template-columns: 31.3% 31.3% 31.3%;
     grid-template-rows: auto auto;
     grid-auto-flow: row;
     grid-column-gap: 2%;
     grid-row-gap: 15px;
     width:100%;
+    margin:24px auto;
 }
 
 .metro-interactive .mi-summary-card{
-    padding:0px 12px 10px 12px;
+    padding:0px 0px 5px 0px;
     margin:0px 0px 15px 0px;
-    border:1px solid #ffffff;
+    border:1px solid #aaaaaa;
     border-width:0px 0px 1px 0px;
 
 }
@@ -218,6 +219,8 @@
     .metro-interactive .mi-split > div{
         width:auto;
         float:none;
+        background:#ffffff;
+        border-radius:5px;
     }
 
     .metro-interactive p.mi-title1{font-size:30px;}
@@ -230,16 +233,16 @@
 @media (min-width: 800px){
     .metro-interactive .mi-split > div{
         float:left;
-        width:71%;
-        margin-left:3%;
-        padding-left:3%;
+        width:73%;
+        margin-left:2%;
+        padding:20px 20px;
         border-left:1px solid #ffffff;
     }
     
     .metro-interactive .mi-split > div:first-child{
         width:25%;
         margin:0px;
-        padding:0px;
+        padding:20px 20px;
         border:none;
     }
 

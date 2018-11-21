@@ -48,11 +48,11 @@ function main(){
     var title_wrap = map_layout.panels.title.append("div").style("display","block").style("text-align","center").style("border-bottom","1px solid #ffffff").style("padding-bottom","5px");
     
     title_wrap.append("p").classed("mi-title2",true).text("Devaluation of black homes").style("margin-bottom","5px");
-    title_wrap.append("p").html("<em>Hover over a metro area for detail on the magnitude of its devaluation</em>")
+    title_wrap.append("p").html("<em>Hover over a metro area for detail on the magnitude of its devaluation of homes in majority black neighborhoods</em>")
 
     //LEGEND
     var side_panel = bar_container.append("div").style("padding","15px").style("border-left","1px solid #ffffff")
-    side_panel.append("p").html("<strong>Comparing home values in majority black neighborhoods with those where less than 1% of residents are black</strong>")
+    side_panel.append("p").html("<strong>Comparing home values in majority black neighborhoods with those where less than 1% of residents are black</strong>").style("margin-bottom","20px")
 
     var devalued = side_panel.append("div").classed("c-fix",true).style("margin","10px 0px 30px 0px");
     devalued.append("div").style("width","30px").style("height","1.25em").style("float","left").style("background-color",palette.red).style("margin","0px 5px 0px 0px");
@@ -88,8 +88,8 @@ function main(){
     .attr("stroke",palette.green)
     .attr("stroke-width","3");
 
-    side_panel.append("p").style("margin","20px 0px").style("color","#555555")
-                        .html("<em>Metro area dots are sized according to relative devaluation, measured in percentage point differences</em>");
+    side_panel.append("p").style("margin","20px 0px 30px 0px").style("color","#555555")
+                        .html("<em>Devaluation and appreciation are represented by percent difference between comparable homes.</em>");
 
     //MAP LAYOUT
     var statemap = map(map_container.node());
@@ -116,10 +116,10 @@ function main(){
       return '<p style="line-height:1.5em;margin-bottom:8px;"><strong>' + 
               lookup[code].summary.cbsaname + 
               '</strong><p>' + 
-              '<p style="margin-bottom:8px;">Relative difference <br/>' +
-              format.shch1(lookup[code].summary.zil_deval_blk50_3) + 
+              '<p style="margin-bottom:8px;">Percent difference <br/>' +
+              format.pct1(lookup[code].summary.zil_deval_blk50_3) + 
               '</p>' + 
-              '<p>Price difference (language?)<br/>' + 
+              '<p>Absolute price difference<br/>' + 
               format.fn(price_diff, "dollch0") + 
              '</p>';
     }, function(){

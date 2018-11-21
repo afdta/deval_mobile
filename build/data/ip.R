@@ -12,6 +12,9 @@ nms <- c("cbsa", "cbsaname", "zil_deval_blk50_3", "kfr_black_pooled_p25",
 
 summary <- read_xlsx(summary_file, range="A3:M115", col_names=nms, na=c("","N/A"))
 
+#sort(log(summary$price_actual/summary$price_estimated) - summary$zil_deval_blk50_3)
+
+
 neighborhood <- read_xlsx(neighborhood_file, col_names=paste0("X",1:19), skip=1)
 neighborhood_nms <- read_xlsx(neighborhood_file, col_names=paste0("X",1:19), n_max=1) %>% as.data.frame() %>% unbox()
 

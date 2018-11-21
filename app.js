@@ -17389,9 +17389,9 @@
 
 	    var scope = neighborhood_bar_scope();
 
-	    var wrap = d3.select(container).style("border-bottom","0px solid #aaaaaa")
-	                    .style("padding","10px 3%").style("background","#eeeeee")
-	                    .style("border-radius","5px");
+	    var wrap = d3.select(container).style("border","1px solid #aaaaaa")
+	                    .style("padding","10px 15px").style("background","#ffffff")
+	                    .style("border-radius","0px");
 
 	    var all_ = all_data.map(function(d){
 	        return scope.types.map(function(t){
@@ -17471,11 +17471,15 @@
 
 	    var scope = neighborhood_bar_scope();
 
-	    var wrap = d3.select(container).style("border-bottom","0px solid #aaaaaa")
-	                    .style("padding","10px 3%").style("background","#eeeeee")
-	                    .style("border-radius","5px");
+	    var wrap = d3.select(container).style("border","1px solid #aaaaaa")
+	                    .style("padding","10px 15px").style("background","#ffffff")
+	                    .style("border-radius","0px").style("position","relative");
 
-	    wrap.append("p").html('<strong style="color:#999999">Key</strong><br />Share of neighborhood population that is black')
+	    var tab = wrap.append("svg").attr("width","17px").attr("height","17px").style("position","absolute")
+	                .style("left","-1px").style("top","-1px").append("path")
+	                .attr("d", "M0,0 L17,0 L0,17 Z").attr("fill","#bf597d");
+
+	    wrap.append("p").html('<strong style="color:#bf597d">Key</strong><br />Share of neighborhood population that is black')
 	                    .style("font-weight","bold").style("margin","0px 0px 5px 0px");
 
 	    var svg = wrap.append("svg")
@@ -17507,12 +17511,15 @@
 	    var wrap = d3.select(container);
 	    
 
-	    var header = wrap.append("div").classed("c-fix",true).style("border-bottom","1px solid #ffffff");    
+	    var header = wrap.append("div").classed("c-fix",true).style("border-bottom","0px solid #ffffff")
+	            .style("background-color","#ffffff").style("padding","20px").style("margin-top","32px")
+	            .style("border-radius","5px");
+	    
 	    var title_box = header.append("div")
 	                        .classed("c-fix",true)
 	                        .style("float","none")
 	                        .style("clear","both")
-	                        .style("padding-bottom","15px");
+	                        ;
 
 
 
@@ -17554,17 +17561,18 @@
 
 	    var body = wrap.append("div").classed("c-fix",true).style("margin-top","24px").style("padding","0px 0px");
 
-	    var panels = body.append("div").classed("c-fix mi-split",true).style("margin","32px 0px");
+	    var panels = body.append("div").classed("c-fix mi-split",true).style("margin","2% 0px");
 	    
 	    var left_panel = panels.append("div");
 	    var right_panel = panels.append("div");
 
 
-	    //left_panel.append("p").text("Summary metrics here").classed("mi-title3");
+	    left_panel.append("p").text("Summary metrics").classed("mi-title2",true);
 
-	    right_panel.append("p").classed("mi-title3",true).text("Neighborhood characteristics by share of the population that is black");
-	    right_panel.append("p").html("<em>Subtitle here, if helpful. NEED: Cleaned up variable titles and reorder. POSSIBLE: Add definitions on hover.</em>");
-
+	    right_panel.append("p").classed("mi-title2",true).style("margin-left","0px")
+	                        .text("Neighborhood characteristics");
+	    //right_panel.append("p").style("margin-left","15px").style("font-weight","bold")
+	    //                    .text("By share of the population that is black");
 
 	    //X6 - X19
 	    var bar_updaters = [];
@@ -17572,10 +17580,11 @@
 
 	    neighborhood_legend(rp1.append("div").node());
 
-	    var X = 5;
-	    while(++X <= 19){
-	        bar_updaters.push(neighborhood_bars(rp1.append("div").node(), "X"+X));
-	    }
+	    var dash_panels = rp1.selectAll("div.dash-panel").data([7,9,10,11,13,14,15,16,17,18,19]).enter().append("div").classed("dash-panel",true);
+	    dash_panels.each(function(d){
+	        bar_updaters.push(neighborhood_bars(this, "X"+d));
+	    });
+
 
 	    select.on("change", function(){
 	        scope.cbsa = this.value+"";
@@ -17633,8 +17642,8 @@
 	                },
 	                {
 	                    title:"Average devaluation of black homes",
-	                    value:format.fn(D.zil_deval_blk50_3, "shch1"),
-	                    footer:"Variable used: zil_deval_blk50_3 | percentage points"
+	                    value:format.fn(D.zil_deval_blk50_3, "pct1"),
+	                    footer:""
 	                },
 	                {
 	                    title:"Gross wealth lost",
@@ -17654,7 +17663,7 @@
 	        divs.exit().remove();
 
 	        var divs_enter = divs.enter().append("div").classed("mi-summary-card",true);
-	        divs_enter.append("p").classed("mi-summary-card-title mi-title3",true);
+	        divs_enter.append("p").classed("mi-summary-card-title",true);
 	        divs_enter.append("p").classed("mi-summary-card-value mi-title2",true);
 	        divs_enter.append("p").classed("mi-summary-card-footer",true);
 
@@ -17703,11 +17712,11 @@
 	    var title_wrap = map_layout.panels.title.append("div").style("display","block").style("text-align","center").style("border-bottom","1px solid #ffffff").style("padding-bottom","5px");
 	    
 	    title_wrap.append("p").classed("mi-title2",true).text("Devaluation of black homes").style("margin-bottom","5px");
-	    title_wrap.append("p").html("<em>Hover over a metro area for detail on the magnitude of its devaluation</em>");
+	    title_wrap.append("p").html("<em>Hover over a metro area for detail on the magnitude of its devaluation of homes in majority black neighborhoods</em>");
 
 	    //LEGEND
 	    var side_panel = bar_container.append("div").style("padding","15px").style("border-left","1px solid #ffffff");
-	    side_panel.append("p").html("<strong>Comparing home values in majority black neighborhoods with those where less than 1% of residents are black</strong>");
+	    side_panel.append("p").html("<strong>Comparing home values in majority black neighborhoods with those where less than 1% of residents are black</strong>").style("margin-bottom","20px");
 
 	    var devalued = side_panel.append("div").classed("c-fix",true).style("margin","10px 0px 30px 0px");
 	    devalued.append("div").style("width","30px").style("height","1.25em").style("float","left").style("background-color",palette.red).style("margin","0px 5px 0px 0px");
@@ -17743,8 +17752,8 @@
 	    .attr("stroke",palette.green)
 	    .attr("stroke-width","3");
 
-	    side_panel.append("p").style("margin","20px 0px").style("color","#555555")
-	                        .html("<em>Metro area dots are sized according to relative devaluation, measured in percentage point differences</em>");
+	    side_panel.append("p").style("margin","20px 0px 30px 0px").style("color","#555555")
+	                        .html("<em>Devaluation and appreciation are represented by percent difference between comparable homes.</em>");
 
 	    //MAP LAYOUT
 	    var statemap = map(map_container.node());
@@ -17771,10 +17780,10 @@
 	      return '<p style="line-height:1.5em;margin-bottom:8px;"><strong>' + 
 	              lookup[code].summary.cbsaname + 
 	              '</strong><p>' + 
-	              '<p style="margin-bottom:8px;">Relative difference <br/>' +
-	              format.shch1(lookup[code].summary.zil_deval_blk50_3) + 
+	              '<p style="margin-bottom:8px;">Percent difference <br/>' +
+	              format.pct1(lookup[code].summary.zil_deval_blk50_3) + 
 	              '</p>' + 
-	              '<p>Price difference (language?)<br/>' + 
+	              '<p>Absolute price difference<br/>' + 
 	              format.fn(price_diff, "dollch0") + 
 	             '</p>';
 	    }, function(){
