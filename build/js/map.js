@@ -18,7 +18,8 @@ function map(container){
     var wrap0 = d3.select(container).append("div").classed("c-fix",true).style("padding","0px").style("position","relative").style("min-height","15px");
 
     //map dom
-    var map_panel = wrap0.append("div").style("position","relative").style("z-index","7").style("top","0px").style("left","0px"); //hold map -- set dims on this wrap
+    //map_panel holds map -- set dims on this panel
+    var map_panel = wrap0.append("div").style("position","relative").style("z-index","7").style("top","0px").style("left","0px");
     var svg = map_panel.append("svg").attr("width","100%").attr("height","100%");
     var g_back = svg.append("g");
     var g_main = svg.append("g");
@@ -79,7 +80,6 @@ function map(container){
     var tip_show_timer;
     var tip_hide_timer;
     function show_tooltip(centroid, html){
-        //this is target element (path or circle)
         clearTimeout(tip_hide_timer);
         clearTimeout(tip_show_timer);
 
@@ -148,7 +148,7 @@ function map(container){
     //internal draw method
     function draw(){
         wrap0.style("overflow","visible"); //allow tooltips to overflow
-        dims();
+        dims(); //if width set at any point by user--using map.print() or map.width()--dims will use that
 
         map_panel.style("width", scope.width+"px").style("height", scope.height+"px");
 
@@ -271,16 +271,11 @@ function map(container){
 
         layer_methods.highlight = function(key){
             if(ttip !== null && selection !== null){
-                var datum = selection.filter(function(d){
-                    return geokey(d) == key;
-                });
-
-                if(datum != null){
-                    ttip(datum);
-                }
+                ttip(key);
             }
-        }
+        }        
 
+        //to do, enable adding of attrs
         layer_methods.attr = function(a){
             if(arguments.length > 0){
                 attrs = a;
@@ -527,18 +522,6 @@ function map(container){
     map_methods.panels = function(){
         return panels;
     }
-
-    //deprecated -- always responsive unless the user specifies a width to print() method
-    /*map_methods.responsive = function(onoff){
-        if(arguments.length > 0){
-            scope.responsive = !!onoff;
-        }
-        else{
-            scope.responsive = !scope.responsive;
-        }
-        return map_methods;
-    }*/
-
 
     return map_methods;
 

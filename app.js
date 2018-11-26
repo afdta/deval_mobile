@@ -305,9 +305,8 @@
 
 	        panels.map.style("width", (map_share*100) + "%");
 	        panels.side.style("width", (side_share*100) + "%")
-	                  .style("display", "block")
 	                  .style("box-shadow", box_shadow)
-	                  .style("display", is_mobile ? "none" : "block"); 
+	                  .style("display", is_mobile ? "none" : ("block")); 
 
 	        panels.mobile.style("display", is_mobile ? "block" : "none").classed("c-fix",true);
 
@@ -358,7 +357,8 @@
 	    var wrap0 = d3.select(container).append("div").classed("c-fix",true).style("padding","0px").style("position","relative").style("min-height","15px");
 
 	    //map dom
-	    var map_panel = wrap0.append("div").style("position","relative").style("z-index","7").style("top","0px").style("left","0px"); //hold map -- set dims on this wrap
+	    //map_panel holds map -- set dims on this panel
+	    var map_panel = wrap0.append("div").style("position","relative").style("z-index","7").style("top","0px").style("left","0px");
 	    var svg = map_panel.append("svg").attr("width","100%").attr("height","100%");
 	    var g_back = svg.append("g");
 	    var g_main = svg.append("g");
@@ -419,7 +419,6 @@
 	    var tip_show_timer;
 	    var tip_hide_timer;
 	    function show_tooltip(centroid, html){
-	        //this is target element (path or circle)
 	        clearTimeout(tip_hide_timer);
 	        clearTimeout(tip_show_timer);
 
@@ -488,7 +487,7 @@
 	    //internal draw method
 	    function draw(){
 	        wrap0.style("overflow","visible"); //allow tooltips to overflow
-	        dims();
+	        dims(); //if width set at any point by user--using map.print() or map.width()--dims will use that
 
 	        map_panel.style("width", scope.width+"px").style("height", scope.height+"px");
 
@@ -611,16 +610,11 @@
 
 	        layer_methods.highlight = function(key){
 	            if(ttip !== null && selection !== null){
-	                var datum = selection.filter(function(d){
-	                    return geokey(d) == key;
-	                });
-
-	                if(datum != null){
-	                    ttip(datum);
-	                }
+	                ttip(key);
 	            }
-	        };
+	        };        
 
+	        //to do, enable adding of attrs
 	        layer_methods.attr = function(a){
 	            if(arguments.length > 0){
 	                attrs = a;
@@ -867,18 +861,6 @@
 	    map_methods.panels = function(){
 	        return panels;
 	    };
-
-	    //deprecated -- always responsive unless the user specifies a width to print() method
-	    /*map_methods.responsive = function(onoff){
-	        if(arguments.length > 0){
-	            scope.responsive = !!onoff;
-	        }
-	        else{
-	            scope.responsive = !scope.responsive;
-	        }
-	        return map_methods;
-	    }*/
-
 
 	    return map_methods;
 
@@ -17747,9 +17729,8 @@
 	    //DOM ROOTS
 	    var map_layout = layout(outer_map_container);
 	    var map_container = map_layout.panels.map;
-	    var bar_container = map_layout.panels.side.style("background-color","#e0e0e0");    var dash_container = document.getElementById("mi-dash-panel");
-	    var mobile_panel = map_layout.panels.mobile.style("text-align","center").append("div")
-	                                  .style("text-align","left");
+	    var bar_container = map_layout.panels.side.style("background-color","#e0e0e0");
+	    var mobile_panel = map_layout.panels.mobile.style("text-align","center").append("div").style("text-align","left");
 
 	    map_layout.panels.title.style("margin-bottom","25px").style("text-align","center");
 	    var title_wrap = map_layout.panels.title.append("div").style("display","block").style("text-align","center").style("border-bottom","1px solid #ffffff").style("padding-bottom","5px");
@@ -17798,16 +17779,20 @@
 	    });
 
 	    setTimeout(function(){
+
+	      //use layout to redraw on resize
 	      map_layout.dims().callback(function(){
 	        var width = this.widths.map;
-	        console.log(width);
 	        statemap.print(width);
 	      });
+
+	      //initialize map
 	      statemap.print();
 	    }, 0);
 
 	  
-	    //dashboards
+	    //initialize dashboards
+	    var dash_container = document.getElementById("mi-dash-panel");
 	    dashboard(dash_container, cbsa_geos2, lookup);
 
 	  }

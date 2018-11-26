@@ -35,10 +35,8 @@ function main(){
     //DOM ROOTS
     var map_layout = layout(outer_map_container);
     var map_container = map_layout.panels.map;
-    var bar_container = map_layout.panels.side.style("background-color","#e0e0e0");;
-    var dash_container = document.getElementById("mi-dash-panel");
-    var mobile_panel = map_layout.panels.mobile.style("text-align","center").append("div")
-                                  .style("text-align","left");
+    var bar_container = map_layout.panels.side.style("background-color","#e0e0e0");
+    var mobile_panel = map_layout.panels.mobile.style("text-align","center").append("div").style("text-align","left");
 
     map_layout.panels.title.style("margin-bottom","25px").style("text-align","center");
     var title_wrap = map_layout.panels.title.append("div").style("display","block").style("text-align","center").style("border-bottom","1px solid #ffffff").style("padding-bottom","5px");
@@ -87,16 +85,20 @@ function main(){
     });
 
     setTimeout(function(){
+
+      //use layout to redraw on resize
       map_layout.dims().callback(function(){
         var width = this.widths.map;
-        console.log(width);
         statemap.print(width);
       });
+
+      //initialize map
       statemap.print();
     }, 0);
 
   
-    //dashboards
+    //initialize dashboards
+    var dash_container = document.getElementById("mi-dash-panel");
     dashboard(dash_container, cbsa_geos2, lookup);
 
   }

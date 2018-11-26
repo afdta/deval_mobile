@@ -97,9 +97,8 @@ export default function layout(container, width){
 
         panels.map.style("width", (map_share*100) + "%");
         panels.side.style("width", (side_share*100) + "%")
-                  .style("display", side_panel_visible ? "block" : "none")
                   .style("box-shadow", box_shadow)
-                  .style("display", is_mobile ? "none" : "block"); 
+                  .style("display", is_mobile ? "none" : (side_panel_visible ? "block" : "none")); 
                   ;
 
         panels.mobile.style("display", is_mobile ? "block" : "none").classed("c-fix",true);
