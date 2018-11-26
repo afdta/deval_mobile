@@ -16,23 +16,11 @@ all_data.forEach(function(d,i){
     }
 });
 
-var dashboard_keys = [];
-for(var k in names){
-    if(names.hasOwnProperty(k)){
-        dashboard_keys.push(k);
-    }
-}
-
-
 //scales for map and accompanying bar chart
-var extent = d3.extent(all_data, function(d){return d.summary.zil_deval_blk50_3});
 var absmax0 = d3.max(all_data, function(d){return Math.abs(d.summary.zil_deval_blk50_3)});
-var absmax = 0.6; //manually clip off extremes
-var redscale = d3.scaleQuantize().domain([0, absmax]).range(palette.reds);
-var greenscale = d3.scaleQuantize().domain([0, absmax]).range(palette.greens);
 var rscale = d3.scaleSqrt().domain([0, absmax0]).range([0,15]);
 
-var bar_scale = d3.scaleLinear().domain(extent).range([5,85]).nice();
+
 var devaluation_scale = function(v){
     if(v != null){
         return v >= 0 ? palette.green : palette.red;
@@ -64,4 +52,4 @@ var fill = function(cbsa){
 }
 
 
-export {lookup, dashboard_keys, radius_scale, rscale, fill, bar_scale};
+export {lookup, radius_scale, rscale, fill};

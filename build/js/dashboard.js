@@ -4,9 +4,10 @@ import {neighborhood_bars, neighborhood_legend} from './bar-chart-module';
 import format from "../../../js-modules/formats.js";
 import palette from './palette.js';
 
-export default function dashboard(container, cbsas, lookup, dashboard_keys){
+export default function dashboard(container, cbsas, lookup){
     var wrap = d3.select(container);
     
+    var dashboard_keys = ["X14", "X15", "X17", "X16", "X19", "X18", "X11", "X13", "X10", "X9", "X7"];
 
     var header = wrap.append("div").classed("c-fix",true).style("border-bottom","0px solid #ffffff")
             .style("background-color","#ffffff").style("padding","20px").style("margin-top","32px")
@@ -68,8 +69,6 @@ export default function dashboard(container, cbsas, lookup, dashboard_keys){
 
     right_panel.append("p").classed("mi-title2",true).style("margin-left","0px")
                         .text("Neighborhood characteristics");
-    //right_panel.append("p").style("margin-left","15px").style("font-weight","bold")
-    //                    .text("By share of the population that is black");
 
     //X6 - X19
     var bar_updaters = [];
@@ -79,7 +78,8 @@ export default function dashboard(container, cbsas, lookup, dashboard_keys){
 
     var dash_panels = rp1.selectAll("div.dash-panel").data(dashboard_keys).enter().append("div").classed("dash-panel",true);
     dash_panels.each(function(d){
-        bar_updaters.push(neighborhood_bars(this, d));
+        var that = this;
+        bar_updaters.push(neighborhood_bars(that, d));
     });
 
 
@@ -109,11 +109,6 @@ export default function dashboard(container, cbsas, lookup, dashboard_keys){
 
         summary_stats(scope.cbsa);
     }
-
-    //from david on summary stats
-
- 
-    // number, and gross wealth lost in the metro due to devaluation.
 
     function summary_stats(geo){
         

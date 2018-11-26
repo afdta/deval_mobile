@@ -242,15 +242,13 @@
 	    //DOM CONTAINERS (panels exposed via API)
 	    var panels = {};
 	    panels.title = wrap.append("div").classed("layout-title",true);
-	    panels.mobile = wrap.append("div");
 
-	    //CONTAINERS NOT EXPOSED
 	    var main = wrap.append("div").classed("c-fix",true);
 	    var map_wrap = main.append("div").style("float","left").style("overflow","visible");
-
-	    panels.map = map_wrap.append("div");
 	    panels.side = main.append("div").style("float","right").style("width","220px").style("position","relative").style("z-index","10").style("min-height","50px");
-	    
+	    panels.map = map_wrap.append("div");
+	    panels.mobile = wrap.append("div");
+
 	    //EXPOSE VIA API
 	    scope.panels = panels;
 	    var is_mobile = false;
@@ -296,7 +294,7 @@
 	        }
 
 	        var widths = {
-	            map: Math.floor(width*map_share),
+	            map: Math.floor(width*map_share*map_wrap_share),
 	            side: Math.floor(width*side_share)
 	        };
 	        scope.widths = widths;
@@ -313,7 +311,7 @@
 
 	        panels.mobile.style("display", is_mobile ? "block" : "none").classed("c-fix",true);
 
-	        
+	        return scope;
 	    };
 
 	    window.addEventListener("resize", function(){
@@ -484,6 +482,7 @@
 	            wrap0.style("overflow","hidden"); //avoid horizontal scroll bars while resizing
 	            resize_timeout = setTimeout(draw, 0);
 	        }
+	        //console.log("map draw: " + scope.responsive);
 	    });
 
 	    //internal draw method
@@ -17301,23 +17300,11 @@
 	        c != h.Major.X1);
 	});
 
-	var dashboard_keys = [];
-	for(var k in names){
-	    if(names.hasOwnProperty(k)){
-	        dashboard_keys.push(k);
-	    }
-	}
-
-
 	//scales for map and accompanying bar chart
-	var extent = d3.extent(all_data, function(d){return d.summary.zil_deval_blk50_3});
 	var absmax0 = d3.max(all_data, function(d){return Math.abs(d.summary.zil_deval_blk50_3)});
-	var absmax = 0.6; //manually clip off extremes
-	var redscale = d3.scaleQuantize().domain([0, absmax]).range(palette.reds);
-	var greenscale = d3.scaleQuantize().domain([0, absmax]).range(palette.greens);
 	var rscale = d3.scaleSqrt().domain([0, absmax0]).range([0,15]);
 
-	var bar_scale = d3.scaleLinear().domain(extent).range([5,85]).nice();
+
 	var devaluation_scale = function(v){
 	    if(v != null){
 	        return v >= 0 ? palette.green : palette.red;
@@ -17515,9 +17502,10 @@
 	            .text(function(d){return scope.type_labels[d]});
 	}
 
-	function dashboard(container, cbsas, lookup, dashboard_keys){
+	function dashboard(container, cbsas, lookup){
 	    var wrap = d3.select(container);
 	    
+	    var dashboard_keys = ["X14", "X15", "X17", "X16", "X19", "X18", "X11", "X13", "X10", "X9", "X7"];
 
 	    var header = wrap.append("div").classed("c-fix",true).style("border-bottom","0px solid #ffffff")
 	            .style("background-color","#ffffff").style("padding","20px").style("margin-top","32px")
@@ -17579,8 +17567,6 @@
 
 	    right_panel.append("p").classed("mi-title2",true).style("margin-left","0px")
 	                        .text("Neighborhood characteristics");
-	    //right_panel.append("p").style("margin-left","15px").style("font-weight","bold")
-	    //                    .text("By share of the population that is black");
 
 	    //X6 - X19
 	    var bar_updaters = [];
@@ -17590,7 +17576,8 @@
 
 	    var dash_panels = rp1.selectAll("div.dash-panel").data(dashboard_keys).enter().append("div").classed("dash-panel",true);
 	    dash_panels.each(function(d){
-	        bar_updaters.push(neighborhood_bars(this, d));
+	        var that = this;
+	        bar_updaters.push(neighborhood_bars(that, d));
 	    });
 
 
@@ -17620,11 +17607,6 @@
 
 	        summary_stats(scope.cbsa);
 	    }
-
-	    //from david on summary stats
-
-	 
-	    // number, and gross wealth lost in the metro due to devaluation.
 
 	    function summary_stats(geo){
 	        
@@ -17687,12 +17669,67 @@
 	    update();
 	}
 
+	function render_legend(container, mobile){
+
+	    var side_panel = d3.select(container).append("div").classed("c-fix",true).style("padding","15px");
+	    side_panel.append("p").html("<strong>Comparing home values in majority black neighborhoods with those where less than 1% of residents are black</strong>").style("margin-bottom","20px");
+
+	    var devalued = side_panel.append("div").classed("c-fix",true).classed("devaluation-legend-entry",true);
+	    devalued.append("div").style("width","30px").style("height","1.1em").style("float","left").style("background-color",palette.red).style("margin","0px 5px 0px 0px");
+	    devalued.append("p").html('<strong>Devaluation:</strong> Comparable homes in majority black neighborhoods are worth <strong>less</strong> <img src="https://www.brookings.edu/wp-content/uploads/2018/11/devaluation-worth-less.png" />').style("margin","0px");
+	    
+	    var devalued_svg = devalued.append("svg").attr("width","170px").attr("height","50px").style("float","right");
+	    devalued_svg.append("path").attr("d","M0,34 l165,0 l-7,-7").attr("stroke", "#555555").attr("stroke-width","2").attr("fill","none").attr("stroke-linejoin","round");
+	    devalued_svg.append("text").text("Greater devaluation").style("font-size","13px").style("font-weight","bold").attr("y","49").attr("x",165).attr("text-anchor","end");
+	    
+	    var circlesD = devalued_svg.selectAll("circle").data([0.1, 0.2, 0.35, 0.6, 0.85]);
+	    circlesD.enter().append("circle").merge(circlesD).attr("cx", function(d,i){
+	        return (10 + (i*35) - i*(15-rscale(d)));
+	    }).attr("cy",function(d){return 27-rscale(d)})
+	    .attr("r", function(d,i){return rscale(d)})
+	    .attr("fill","none")
+	    .attr("stroke",palette.red)
+	    .attr("stroke-width","3");
+
+	    var appreciated = side_panel.append("div").classed("c-fix",true);
+	    appreciated.append("div").style("width","30px").style("height","1.1em").style("float","left").style("background-color",palette.green).style("margin","0px 5px 0px 0px");
+	    appreciated.append("p").html('<strong>Appreciation:</strong> Comparable homes in majority black neighborhoods are worth <strong>more</strong> <img src="https://www.brookings.edu/wp-content/uploads/2018/11/devaluation-worth-more.png" />').style("margin","0px");
+
+	    var appreciated_svg = appreciated.append("svg").attr("width","170px").attr("height","50px").style("float","right");
+	    appreciated_svg.append("path").attr("d","M0,34 l165,0 l-7,-7").attr("stroke", "#555555").attr("stroke-width","2").attr("fill","none").attr("stroke-linejoin","round");
+	    appreciated_svg.append("text").text("Greater appreciation").style("font-size","13px").style("font-weight","bold").attr("y","49").attr("x",165).attr("text-anchor","end");
+	    
+	    var circlesA = appreciated_svg.selectAll("circle").data([0.1, 0.2, 0.35, 0.6, 0.85]);
+	    circlesA.enter().append("circle").merge(circlesA).attr("cx", function(d,i){
+	        return (10 + (i*35) - i*(15-rscale(d)));
+	    }).attr("cy",function(d){return 27-rscale(d)})
+	    .attr("r", function(d,i){return rscale(d)})
+	    .attr("fill","none")
+	    .attr("stroke",palette.green)
+	    .attr("stroke-width","3");
+
+	    var footnote_text = "<em>Devaluation and appreciation are represented by percent difference between comparable homes. Hover over metro areas for detail on the magnitude of devaluation.</em>";
+	    var footnote = side_panel.append("p").style("margin","20px 0px 0px 0px").style("color","#555555").html(footnote_text);
+
+	    var is_mobile = arguments.length > 1 ? !!mobile : false;
+	    if(is_mobile){
+	        devalued.style("float","left").style("width","47%").style("min-width","170px").style("margin","0px 3% 20px 0px");
+	        appreciated.style("float","left").style("width","47%").style("min-width","170px").style("margin","0px 0px 20px 3%");
+	        footnote.style("clear","both");
+	        side_panel.style("padding-top","25px");
+	    }
+	    else{
+	        devalued.style("margin","10px 0px 30px 0px");
+	    }
+
+	}
+
 	//main function
 	function main(){
 
 	  var outer_map_container = document.getElementById("mi-map-panel");
 
-	  var compat = degradation();
+	  var compat = degradation(outer_map_container);
 
 	  var cbsa_geos2 = cbsa_geos.filter(function(d){return lookup.hasOwnProperty(d.cbsa)})
 	                            .sort(function(a,b){
@@ -17720,51 +17757,9 @@
 	    title_wrap.append("p").classed("mi-title2",true).text("Devaluation of black homes").style("margin-bottom","5px");
 	    title_wrap.append("p").html("<em>113 metropolitan areas with at least one majority black neighborhood</em>");
 
-	    //LEGEND
-	    var side_panel = bar_container.append("div").style("padding","15px").style("border-left","1px solid #ffffff");
-	    side_panel.append("p").html("<strong>Comparing home values in majority black neighborhoods with those where less than 1% of residents are black</strong>").style("margin-bottom","20px");
-
-	    var devalued = side_panel.append("div").classed("c-fix",true).style("margin","10px 0px 30px 0px");
-	    devalued.append("div").style("width","30px").style("height","1.25em").style("float","left").style("background-color",palette.red).style("margin","0px 5px 0px 0px");
-	    devalued.append("p").html("<strong>Devaluation:</strong> Comparable homes in majority black neighborhoods are worth <strong>less ↘</strong>").style("margin","0px");
-	    
-	    var devalued_svg = devalued.append("svg").attr("width","170px").attr("height","50px").style("float","right");
-	    devalued_svg.append("path").attr("d","M0,34 l165,0 l-7,-7").attr("stroke", "#555555").attr("stroke-width","2").attr("fill","none").attr("stroke-linejoin","round");
-	    devalued_svg.append("text").text("Greater devaluation").style("font-size","13px").style("font-weight","bold").attr("y","49").attr("x",165).attr("text-anchor","end");
-	    
-	    var circlesD = devalued_svg.selectAll("circle").data([0.1, 0.2, 0.35, 0.6, 0.85]);
-	    circlesD.enter().append("circle").merge(circlesD).attr("cx", function(d,i){
-	        return (10 + (i*35) - i*(15-rscale(d)));
-	    }).attr("cy",function(d){return 27-rscale(d)})
-	    .attr("r", function(d,i){return rscale(d)})
-	    .attr("fill","none")
-	    .attr("stroke",palette.red)
-	    .attr("stroke-width","3");
-
-	    var appreciated = side_panel.append("div").classed("c-fix",true);
-	    appreciated.append("div").style("width","30px").style("height","1.25em").style("float","left").style("background-color",palette.green).style("margin","0px 5px 0px 0px");
-	    appreciated.append("p").html("<strong>Appreciation:</strong> Comparable homes in majority black neighborhoods are worth <strong>more ↗</strong>").style("margin","0px");
-
-	    var appreciated_svg = appreciated.append("svg").attr("width","170px").attr("height","50px").style("float","right");
-	    appreciated_svg.append("path").attr("d","M0,34 l165,0 l-7,-7").attr("stroke", "#555555").attr("stroke-width","2").attr("fill","none").attr("stroke-linejoin","round");
-	    appreciated_svg.append("text").text("Greater appreciation").style("font-size","13px").style("font-weight","bold").attr("y","49").attr("x",165).attr("text-anchor","end");
-	    
-	    var circlesA = appreciated_svg.selectAll("circle").data([0.1, 0.2, 0.35, 0.6, 0.85]);
-	    circlesA.enter().append("circle").merge(circlesA).attr("cx", function(d,i){
-	        return (10 + (i*35) - i*(15-rscale(d)));
-	    }).attr("cy",function(d){return 27-rscale(d)})
-	    .attr("r", function(d,i){return rscale(d)})
-	    .attr("fill","none")
-	    .attr("stroke",palette.green)
-	    .attr("stroke-width","3");
-
-	    side_panel.append("p").style("margin","20px 0px 30px 0px").style("color","#555555")
-	                        .html("<em>Devaluation and appreciation are represented by percent difference between comparable homes. Hover over metro areas for detail on the magnitude of devaluation.</em>");
-
-	    //end desktop legend
-
-	    mobile_panel.append("p").html("<strong>Comparing home values in majority black neighborhoods with those where less than 1% of residents are black</strong>");
-	    mobile_panel.append("p").text("Mobile version of legend to be added");
+	    //add legends
+	    render_legend(bar_container.node());
+	    render_legend(mobile_panel.node(), true);
 
 	    //MAP LAYOUT
 	    var statemap = map(map_container.node());
@@ -17772,10 +17767,9 @@
 	    var cbsa_layer = statemap.add_points(cbsa_geos2, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({fill:"none", "stroke-width":"3", stroke:fill, r:radius_scale, "pointer-events":"all"});
 	    var map_panels = statemap.panels();
 
-	    //MAP TOOLTIPS
+	    //MAP TOOLTIPS FUNCTION
 	    cbsa_layer.tooltips(function(code, node){
-	    
-
+	      //show...
 	      var dot = d3.select(node);
 	      var dots = map_panels.anno.selectAll("circle").data([0]);
 	          dots.enter().append("circle").merge(dots)
@@ -17797,19 +17791,24 @@
 	              '<p>Absolute price difference<br/>' + 
 	              format.fn(price_diff, "dollch0") + 
 	             '</p>';
-	    }, function(){
-
+	    }, 
+	    function(){
+	      //hide...
 	      map_panels.anno.selectAll("circle").remove();
 	    });
 
 	    setTimeout(function(){
-	      map_layout.dims();
+	      map_layout.dims().callback(function(){
+	        var width = this.widths.map;
+	        console.log(width);
+	        statemap.print(width);
+	      });
 	      statemap.print();
 	    }, 0);
 
 	  
 	    //dashboards
-	    dashboard(dash_container, cbsa_geos2, lookup, dashboard_keys);
+	    dashboard(dash_container, cbsa_geos2, lookup);
 
 	  }
 	  else{

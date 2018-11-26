@@ -142,6 +142,7 @@ function map(container){
             wrap0.style("overflow","hidden"); //avoid horizontal scroll bars while resizing
             resize_timeout = setTimeout(draw, 0);
         }
+        //console.log("map draw: " + scope.responsive);
     });
 
     //internal draw method

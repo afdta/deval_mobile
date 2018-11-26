@@ -26,15 +26,13 @@ export default function layout(container, width){
     //DOM CONTAINERS (panels exposed via API)
     var panels = {};
     panels.title = wrap.append("div").classed("layout-title",true);
-    panels.mobile = wrap.append("div");
 
-    //CONTAINERS NOT EXPOSED
     var main = wrap.append("div").classed("c-fix",true);
     var map_wrap = main.append("div").style("float","left").style("overflow","visible");
-
-    panels.map = map_wrap.append("div");
     panels.side = main.append("div").style("float","right").style("width","220px").style("position","relative").style("z-index","10").style("min-height","50px");
-    
+    panels.map = map_wrap.append("div");
+    panels.mobile = wrap.append("div");
+
     //EXPOSE VIA API
     scope.panels = panels;
 
@@ -88,7 +86,7 @@ export default function layout(container, width){
         }
 
         var widths = {
-            map: Math.floor(width*map_share),
+            map: Math.floor(width*map_share*map_wrap_share),
             side: Math.floor(width*side_share)
         }
         scope.widths = widths;
@@ -106,7 +104,7 @@ export default function layout(container, width){
 
         panels.mobile.style("display", is_mobile ? "block" : "none").classed("c-fix",true);
 
-        
+        return scope;
     }
 
     window.addEventListener("resize", function(){
