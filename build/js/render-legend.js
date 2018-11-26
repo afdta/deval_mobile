@@ -7,7 +7,7 @@ export default function render_legend(container, mobile){
 
     var devalued = side_panel.append("div").classed("c-fix",true).classed("devaluation-legend-entry",true);
     devalued.append("div").style("width","30px").style("height","1.1em").style("float","left").style("background-color",palette.red).style("margin","0px 5px 0px 0px");
-    devalued.append("p").html('<strong>Devaluation:</strong> Comparable homes in majority black neighborhoods are worth <strong>less</strong> <img src="https://www.brookings.edu/wp-content/uploads/2018/11/devaluation-worth-less.png" />').style("margin","0px");
+    devalued.append("p").html('<strong>Devaluation:</strong> Comparable homes in majority black neighborhoods are worth <strong>less</strong> <img style="display:inline" src="https://www.brookings.edu/wp-content/uploads/2018/11/devaluation-worth-less.png" />').style("margin","0px");
     
     var devalued_svg = devalued.append("svg").attr("width","170px").attr("height","50px").style("float","right");
     devalued_svg.append("path").attr("d","M0,34 l165,0 l-7,-7").attr("stroke", "#555555").attr("stroke-width","2").attr("fill","none").attr("stroke-linejoin","round")
@@ -24,7 +24,7 @@ export default function render_legend(container, mobile){
 
     var appreciated = side_panel.append("div").classed("c-fix",true);
     appreciated.append("div").style("width","30px").style("height","1.1em").style("float","left").style("background-color",palette.green).style("margin","0px 5px 0px 0px");
-    appreciated.append("p").html('<strong>Appreciation:</strong> Comparable homes in majority black neighborhoods are worth <strong>more</strong> <img src="https://www.brookings.edu/wp-content/uploads/2018/11/devaluation-worth-more.png" />').style("margin","0px");
+    appreciated.append("p").html('<strong>Appreciation:</strong> Comparable homes in majority black neighborhoods are worth <strong>more</strong> <img style="display:inline" src="https://www.brookings.edu/wp-content/uploads/2018/11/devaluation-worth-more.png" />').style("margin","0px");
 
     var appreciated_svg = appreciated.append("svg").attr("width","170px").attr("height","50px").style("float","right");
     appreciated_svg.append("path").attr("d","M0,34 l165,0 l-7,-7").attr("stroke", "#555555").attr("stroke-width","2").attr("fill","none").attr("stroke-linejoin","round")
