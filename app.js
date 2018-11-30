@@ -812,8 +812,14 @@
 
 	        layer_methods.highlight = function(key){
 	            //ttip checks that selection exists
-	            ttip(key);
-	        };
+	            if(key==null){
+	                ttip_hide();
+	            }
+	            else{
+	                ttip(key);
+	            }
+	        }; 
+
 
 	        layer_methods.attr = function(a){
 	            if(arguments.length > 0){
