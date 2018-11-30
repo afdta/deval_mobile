@@ -193,13 +193,20 @@ function map(container){
         var selection = null;
 
         //tooltip function
-        var ttip = null; 
+        var ttip_show;
+        var ttip = function(key){
+            if(typeof ttip_show === "function" && selection !== null){
+                ttip_show(key);
+            }
+        }        
 
         //hide function
         var ttip_hide_;
         var ttip_hide = function(){
             hide_tooltip(ttip_hide_);
         }
+
+        g.on("mousedown", ttip_hide);
 
         //attributes
         var attrs = {};
@@ -224,10 +231,15 @@ function map(container){
                 }
             }
 
-
-            if(ttip !== null){
-                selection.on("mouseenter", function(d){ttip(geokey(d))}).on("mouseleave", ttip_hide);
-            }
+            selection
+            .on("mouseenter", function(d){
+                ttip(geokey(d));
+            })
+            .on("mousedown", function(d){
+                ttip(geokey(d));
+                d3.event.stopPropagation();
+            })
+            .on("mouseleave", ttip_hide);
         }
 
         draw_stack.push(draw_layer);
@@ -238,7 +250,7 @@ function map(container){
         layer_methods.tooltips = function(html_, hide_){
             
             //register fn
-            ttip = function(key){
+            ttip_show = function(key){
                 //get target path
                 var path = selection.filter(function(d){
                     return d.key == key;
@@ -261,18 +273,11 @@ function map(container){
                 ttip_hide_ = hide_;
             }            
 
-            //apply, if selection created
-            if(selection !== null){
-                selection.on("mouseenter", function(d){ttip(geokey(d))}).on("mouseleave", ttip_hide);
-            }
-
             return layer_methods;
         }
 
         layer_methods.highlight = function(key){
-            if(ttip !== null && selection !== null){
-                ttip(key);
-            }
+            ttip(key);
         }        
 
         //to do, enable adding of attrs
@@ -326,13 +331,20 @@ function map(container){
         var voro_selection = null;
 
         //tooltip fn
-        var ttip = null;
-        
+        var ttip_show;
+        var ttip = function(key){
+            if(typeof ttip_show === "function" && selection !== null){
+                ttip_show(key);
+            }
+        }
+
         //hide function
         var ttip_hide_;
         var ttip_hide = function(){
             hide_tooltip(ttip_hide_);
         }
+
+        g.on("mousedown", ttip_hide);
 
         //attributes
         var attrs = {};
@@ -402,11 +414,25 @@ function map(container){
                                 .attr("stroke","none")
                                 .attr("fill","none")
                                 .style("pointer-events","all");  
-                                
-            if(ttip !== null){
-                selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", ttip_hide);
-                voro_selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", ttip_hide);
-            }                    
+
+            selection.on("mouseenter", function(d){
+                        ttip(d.key)
+                    })
+                    .on("mousedown", function(d){
+                        ttip(d.key);
+                        d3.event.stopPropagation();
+                    })
+                    .on("mouseleave", ttip_hide);
+            
+            voro_selection.on("mouseenter", function(d){
+                        ttip(d.key);
+                    })
+                    .on("mousedown", function(d){
+                        ttip(d.key);
+                        d3.event.stopPropagation();
+                    })
+                    .on("mouseleave", ttip_hide);
+                                          
         }
 
         draw_stack.push(draw_layer);
@@ -414,7 +440,7 @@ function map(container){
         layer_methods.tooltips = function(html_, hide_){
             
             //register
-            ttip = function(key){
+            ttip_show = function(key){
                 //get circle node by filtering selection of circles
                 var dot = selection.filter(function(d){
                     return d.key == key;
@@ -435,20 +461,13 @@ function map(container){
             if(arguments.length > 1){
                 ttip_hide_ = hide_;
             }
-
-            //apply
-            if(voro_selection !== null && selection !== null){
-                selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", ttip_hide);
-                voro_selection.on("mouseenter", function(d){ttip(d.key)}).on("mouseleave", ttip_hide);
-            }
             
             return layer_methods;
         }
 
         layer_methods.highlight = function(key){
-            if(ttip !== null && selection !== null){
-                ttip(key);
-            }
+            //ttip checks that selection exists
+            ttip(key);
         }
 
         layer_methods.attr = function(a){
