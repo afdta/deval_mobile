@@ -277,7 +277,12 @@ function map(container){
         }
 
         layer_methods.highlight = function(key){
-            ttip(key);
+            if(key==null){
+                ttip_hide();
+            }
+            else{
+                ttip(key);
+            }
         }        
 
         //to do, enable adding of attrs

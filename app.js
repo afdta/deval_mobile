@@ -617,7 +617,12 @@
 	        };
 
 	        layer_methods.highlight = function(key){
-	            ttip(key);
+	            if(key==null){
+	                ttip_hide();
+	            }
+	            else{
+	                ttip(key);
+	            }
 	        };        
 
 	        //to do, enable adding of attrs
@@ -17767,6 +17772,9 @@
 	    var state_layer = statemap.add_states(state_geos.features, function(d){return d.properties.geo_id}).attr({fill:"#ffffff", stroke:"#aaaaaa"});
 	    var cbsa_layer = statemap.add_points(cbsa_geos2, function(d){return d.cbsa}, function(d){return [d.lon, d.lat]}).attr({fill:"none", "stroke-width":"3", stroke:fill, r:radius_scale, "pointer-events":"all"});
 	    var map_panels = statemap.panels();
+
+	    //hide tooltip when mousedown event bubbles up to outer_map_container
+	    d3.select(outer_map_container).on("mousedown", function(){cbsa_layer.highlight(null);});
 
 	    //MAP TOOLTIPS FUNCTION
 	    cbsa_layer.tooltips(function(code, node){
